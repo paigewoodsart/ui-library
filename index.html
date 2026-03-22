@@ -1356,6 +1356,221 @@
     .inline-group { display: flex; gap: 0.5rem; max-width: 240px; }
     .inline-group .input { max-width: none; }
 
+    /* ─── Play tab accent ────────────────────────────────────── */
+    .tab-dd-play { margin-left: 0.5rem; padding-left: 0.5rem; border-left: 1px solid var(--border); }
+    .tab-btn-play { color: var(--accent) !important; }
+    .tab-btn-play.active { border-bottom-color: var(--accent); }
+
+    /* ─── Play Section ───────────────────────────────────────── */
+    #play {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 4rem 2.5rem 14rem;
+      position: relative;
+      z-index: 1;
+    }
+    #play.active { display: flex; }
+
+    .play-preview {
+      width: 100%;
+      max-width: 900px;
+      border: 1px solid var(--border);
+      padding: clamp(3rem, 7vw, 5.5rem) clamp(2rem, 6vw, 5rem);
+      position: relative;
+      background: var(--play-bg, var(--bg));
+      transition: background 150ms ease, padding 150ms ease;
+      min-height: 420px;
+      display: flex;
+      align-items: flex-start;
+    }
+    .play-preview-inner {
+      display: flex;
+      flex-direction: column;
+      gap: var(--play-gap, 1.875rem);
+      width: 100%;
+    }
+    .play-overline {
+      font-family: var(--play-body-font, var(--sans));
+      font-size: 0.5625rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--play-body-color, var(--muted-fg));
+      transition: all 150ms ease;
+    }
+    .play-headline {
+      font-family: var(--play-head-font, var(--serif));
+      font-size: clamp(2.25rem, 5.5vw, 4.25rem);
+      font-weight: var(--play-weight, 400);
+      line-height: var(--play-leading, 1.05);
+      letter-spacing: var(--play-tracking, -0.02em);
+      color: var(--play-head-color, var(--fg));
+      transition: all 150ms ease;
+    }
+    .play-headline em {
+      font-style: italic;
+      color: var(--play-accent-color, var(--accent));
+      transition: color 150ms ease;
+    }
+    .play-subhead {
+      font-family: var(--play-body-font, var(--sans));
+      font-size: 0.9375rem;
+      line-height: 1.75;
+      color: var(--play-body-color, var(--muted-fg));
+      max-width: 44ch;
+      transition: all 150ms ease;
+    }
+    .play-actions {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      padding-top: 0.25rem;
+    }
+    .play-cta {
+      font-family: var(--sans);
+      font-size: 0.625rem;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      height: var(--play-btn-height, 48px);
+      padding: var(--play-btn-pad, 0 2.25rem);
+      background: var(--play-btn-fill, var(--fg));
+      color: var(--play-btn-text, var(--bg));
+      border: none;
+      border-radius: var(--play-btn-radius, 0px);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: box-shadow 150ms ease, transform 150ms ease, background 150ms ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .play-cta:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.18); transform: translateY(-1px); }
+    .play-ghost {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 0.8125rem;
+      letter-spacing: 0.04em;
+      color: var(--play-body-color, var(--muted-fg));
+      background: transparent;
+      border: 1px solid var(--border);
+      height: var(--play-btn-height, 48px);
+      padding: var(--play-btn-pad, 0 1.5rem);
+      border-radius: var(--play-btn-radius, 0px);
+      cursor: pointer;
+      transition: color 150ms ease, border-color 150ms ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .play-ghost:hover { color: var(--fg); border-color: var(--fg); }
+
+    /* ─── Play Toolbar ───────────────────────────────────────── */
+    .play-toolbar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 200;
+      background: var(--fg);
+      border-top: 1px solid rgba(255,255,255,0.07);
+      transform: translateY(100%);
+      transition: transform 220ms ease;
+      pointer-events: none;
+    }
+    .play-toolbar.visible {
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    .play-toolbar-bar {
+      display: flex;
+      align-items: center;
+      height: 48px;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      gap: 0;
+    }
+    .play-tb-lbl {
+      font-family: var(--sans);
+      font-size: 0.4875rem;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(249,248,246,0.45);
+      padding: 0 1.125rem;
+      height: 48px;
+      display: inline-flex;
+      align-items: center;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: color 150ms ease, border-color 150ms ease;
+      white-space: nowrap;
+      user-select: none;
+      flex-shrink: 0;
+    }
+    .play-tb-lbl:hover { color: rgba(249,248,246,0.8); }
+    .play-tb-lbl.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .play-tb-sep { margin-left: auto; }
+    .play-tb-reset { color: rgba(249,248,246,0.3); cursor: pointer; }
+    .play-tb-reset:hover { color: rgba(249,248,246,0.65); }
+    .play-tb-export { color: rgba(249,248,246,0.2); cursor: not-allowed; }
+
+    /* Panel above bar */
+    .play-panel {
+      max-height: 0;
+      overflow: hidden;
+      background: rgba(255,255,255,0.03);
+      border-top: 1px solid rgba(255,255,255,0.06);
+      transition: max-height 150ms ease;
+    }
+    .play-panel.open { max-height: 120px; }
+    .play-panel-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: flex-end;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .play-ctrl { display: flex; flex-direction: column; gap: 0.35rem; }
+    .play-ctrl-lbl {
+      font-family: var(--sans);
+      font-size: 0.4375rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(249,248,246,0.35);
+    }
+    .play-sel {
+      appearance: none;
+      background: rgba(255,255,255,0.07) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='rgba(249,248,246,.45)'/%3E%3C/svg%3E") no-repeat right 0.65rem center;
+      border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(249,248,246,0.88);
+      font-family: var(--sans);
+      font-size: 0.5375rem;
+      letter-spacing: 0.06em;
+      padding: 0 2rem 0 0.65rem;
+      height: 32px;
+      min-width: 130px;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 150ms ease;
+      border-radius: 0;
+    }
+    .play-sel:focus { border-color: var(--accent); }
+    .play-sel option { background: #1a1a1a; color: #f9f8f6; }
+
+    @media (max-width: 720px) {
+      .play-panel-inner { gap: 1rem; padding: 0.75rem 1.25rem; }
+      .play-panel.open { max-height: 200px; overflow-y: auto; }
+      .play-sel { min-width: 100px; }
+      #play { padding: 2rem 1.25rem 16rem; }
+    }
+
   </style>
 </head>
 <body>
@@ -1492,6 +1707,10 @@
           <li><a class="tab-dd-item" data-tab="inputs" data-target="inputs-helper">Helper Text</a></li>
           <li><a class="tab-dd-item" data-tab="inputs" data-target="inputs-grouped">Grouped Inputs</a></li>
         </ul>
+      </div>
+
+      <div class="tab-dd tab-dd-play">
+        <button class="tab-btn tab-btn-play" role="tab" aria-selected="false" data-tab="play">Play</button>
       </div>
 
     </div>
@@ -3848,7 +4067,48 @@
       </div>
     </div>
 
+  <!-- ════════════════════════ PLAY ════════════════════════ -->
+  <section id="play" role="tabpanel" aria-label="Play — design sandbox">
+
+    <div class="play-preview" id="playPreview">
+      <div class="play-preview-inner">
+
+        <p class="play-overline">Atelier</p>
+
+        <h2 class="play-headline">Craft without<br><em>compromise.</em></h2>
+
+        <p class="play-subhead">We design systems that hold their shape across every surface, every size, every screen. Precision is not a constraint — it is the work.</p>
+
+        <div class="play-actions">
+          <button class="play-cta" id="playCtaBtn">View our work</button>
+          <button class="play-ghost">Read the case study</button>
+        </div>
+
+      </div>
+    </div>
+
+  </section>
+
   </main>
+
+  <!-- ════════════════════════ PLAY TOOLBAR ════════════════════════ -->
+  <div class="play-toolbar" id="playToolbar" aria-label="Design controls" aria-hidden="true">
+
+    <!-- Panel area (above bar) -->
+    <div class="play-panel" id="playPanel"></div>
+
+    <!-- Always-visible label row -->
+    <div class="play-toolbar-bar">
+      <span class="play-tb-lbl" data-panel="type">Typography</span>
+      <span class="play-tb-lbl" data-panel="color">Color</span>
+      <span class="play-tb-lbl" data-panel="buttons">Buttons</span>
+      <span class="play-tb-lbl" data-panel="spacing">Spacing</span>
+      <span class="play-tb-sep"></span>
+      <span class="play-tb-lbl play-tb-reset" id="playReset">Reset</span>
+      <span class="play-tb-lbl play-tb-export" title="Coming soon">Export</span>
+    </div>
+
+  </div>
 
   <script>
     // ─── Tab + Dropdown navigation ────────────────────────────
@@ -3954,6 +4214,339 @@
         if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); flip(); }
       });
     });
+
+    // ════════════════════════════════════════════════════════════
+    //  PLAY SECTION
+    // ════════════════════════════════════════════════════════════
+    (function() {
+      const preview  = document.getElementById('playPreview');
+      const toolbar  = document.getElementById('playToolbar');
+      const panel    = document.getElementById('playPanel');
+      const playSec  = document.getElementById('play');
+      const playTab  = document.querySelector('.tab-btn-play');
+
+      if (!preview || !toolbar || !panel || !playSec) return;
+
+      // ── Defaults ──────────────────────────────────────────────
+      const cs = getComputedStyle(document.documentElement);
+      const DEFAULTS = {
+        headFont:   cs.getPropertyValue('--serif').trim() || "'Playfair Display', Georgia, serif",
+        bodyFont:   cs.getPropertyValue('--sans').trim()  || "'Inter', -apple-system, sans-serif",
+        weight:     '400',
+        leading:    '1.05',
+        tracking:   '-0.02em',
+        bg:         cs.getPropertyValue('--bg').trim()    || '#F9F8F6',
+        headColor:  cs.getPropertyValue('--fg').trim()    || '#1A1A1A',
+        bodyColor:  cs.getPropertyValue('--muted-fg').trim() || '#6C6863',
+        accentColor:cs.getPropertyValue('--accent').trim()|| '#7A8FA3',
+        btnFill:    cs.getPropertyValue('--fg').trim()    || '#1A1A1A',
+        btnHeight:  '48px',
+        btnPad:     '0 2.25rem',
+        btnRadius:  '0px',
+        heroPad:    'clamp(3rem, 7vw, 5.5rem) clamp(2rem, 6vw, 5rem)',
+        gap:        '1.875rem',
+      };
+
+      // ── Apply a CSS custom property to the preview ─────────────
+      function setVar(name, val) {
+        preview.style.setProperty(name, val);
+      }
+
+      function applyAll(d) {
+        setVar('--play-head-font',    d.headFont);
+        setVar('--play-body-font',    d.bodyFont);
+        setVar('--play-weight',       d.weight);
+        setVar('--play-leading',      d.leading);
+        setVar('--play-tracking',     d.tracking);
+        setVar('--play-bg',           d.bg);
+        setVar('--play-head-color',   d.headColor);
+        setVar('--play-body-color',   d.bodyColor);
+        setVar('--play-accent-color', d.accentColor);
+        setVar('--play-btn-fill',     d.btnFill);
+        preview.style.setProperty('--play-btn-text', d.btnFill === '#F9F8F6' || d.btnFill === cs.getPropertyValue('--bg').trim() ? '#1A1A1A' : '#F9F8F6');
+        setVar('--play-btn-height',   d.btnHeight);
+        setVar('--play-btn-pad',      d.btnPad);
+        setVar('--play-btn-radius',   d.btnRadius);
+        preview.style.padding = d.heroPad;
+        setVar('--play-gap',          d.gap);
+      }
+
+      let state = Object.assign({}, DEFAULTS);
+      applyAll(state);
+
+      // ── Google Fonts loader ────────────────────────────────────
+      const GFONTS = [
+        'Playfair Display','Inter','DM Serif Display','Fraunces','Syne',
+        'Bricolage Grotesque','Cormorant','Plus Jakarta Sans',
+        'Libre Baskerville','Space Grotesk','Epilogue'
+      ];
+      const loadedFonts = new Set();
+
+      function loadGFont(family) {
+        if (loadedFonts.has(family)) return;
+        loadedFonts.add(family);
+        const slug = family.replace(/ /g, '+');
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = `https://fonts.googleapis.com/css2?family=${slug}:ital,wght@0,400;0,500;0,700;1,400&display=swap`;
+        document.head.appendChild(link);
+      }
+
+      function fontStack(family) {
+        const fallback = ['Playfair Display','DM Serif Display','Fraunces','Cormorant','Libre Baskerville'].includes(family)
+          ? 'Georgia, serif' : '-apple-system, sans-serif';
+        return `'${family}', ${fallback}`;
+      }
+
+      // ── Panel definitions ──────────────────────────────────────
+      const PANELS = {
+        type: [
+          { label: 'Headline Font', key: 'headFont', type: 'font-head',
+            opts: GFONTS.map(f => ({ label: f, val: fontStack(f) })) },
+          { label: 'Body Font', key: 'bodyFont', type: 'font-body',
+            opts: GFONTS.map(f => ({ label: f, val: fontStack(f) })) },
+          { label: 'Weight', key: 'weight', type: 'direct',
+            opts: [
+              {label:'Light — 300', val:'300'},{label:'Regular — 400', val:'400'},
+              {label:'Medium — 500', val:'500'},{label:'Semibold — 600', val:'600'},
+              {label:'Bold — 700', val:'700'}
+            ]},
+          { label: 'Line Height', key: 'leading', type: 'direct',
+            opts: [
+              {label:'Tight — 0.92', val:'0.92'},{label:'Snug — 1.05', val:'1.05'},
+              {label:'Normal — 1.2', val:'1.2'},{label:'Relaxed — 1.4', val:'1.4'},
+              {label:'Loose — 1.75', val:'1.75'}
+            ]},
+          { label: 'Letter Spacing', key: 'tracking', type: 'direct',
+            opts: [
+              {label:'Tight — -0.025em', val:'-0.025em'},{label:'Default — -0.02em', val:'-0.02em'},
+              {label:'Normal — 0em', val:'0em'},{label:'Wide — 0.05em', val:'0.05em'},
+              {label:'Wider — 0.1em', val:'0.1em'},{label:'Widest — 0.22em', val:'0.22em'}
+            ]},
+        ],
+        color: [
+          { label: 'Background', key: 'bg', type: 'color',
+            opts: [
+              {label:'Alabaster', val:'#F9F8F6'},{label:'Warm Grey', val:'#EBE5DE'},
+              {label:'Charcoal', val:'#1A1A1A'},{label:'Slate', val:'#2C3440'},
+              {label:'Cream', val:'#FDF8F0'},{label:'Off White', val:'#F4F4F2'}
+            ]},
+          { label: 'Headline Color', key: 'headColor', type: 'color',
+            opts: [
+              {label:'Charcoal', val:'#1A1A1A'},{label:'Warm Grey', val:'#6C6863'},
+              {label:'Steel Blue', val:'#7A8FA3'},{label:'White', val:'#F9F8F6'},
+              {label:'Danger', val:'#8B2635'},{label:'Forest', val:'#2D7A4F'}
+            ]},
+          { label: 'Body Color', key: 'bodyColor', type: 'color',
+            opts: [
+              {label:'Muted', val:'#6C6863'},{label:'Charcoal', val:'#1A1A1A'},
+              {label:'Steel Blue', val:'#7A8FA3'},{label:'Light', val:'rgba(249,248,246,0.6)'},
+              {label:'Lighter', val:'rgba(249,248,246,0.85)'}
+            ]},
+          { label: 'Accent Color', key: 'accentColor', type: 'color',
+            opts: [
+              {label:'Steel Blue', val:'#7A8FA3'},{label:'Gold', val:'#D4AF37'},
+              {label:'Danger', val:'#8B2635'},{label:'Forest', val:'#2D7A4F'},
+              {label:'Info Blue', val:'#3B7DD8'},{label:'Warning', val:'#C27C1A'}
+            ]},
+          { label: 'Button Fill', key: 'btnFill', type: 'color',
+            opts: [
+              {label:'Charcoal', val:'#1A1A1A'},{label:'Steel Blue', val:'#7A8FA3'},
+              {label:'Gold', val:'#D4AF37'},{label:'Danger', val:'#8B2635'},
+              {label:'Forest', val:'#2D7A4F'},{label:'White', val:'#F9F8F6'}
+            ]},
+        ],
+        buttons: [
+          { label: 'Size', key: null, type: 'btn-size',
+            opts: [
+              {label:'Micro — 28px', val:{h:'28px', p:'0 0.875rem'}},
+              {label:'Small — 36px', val:{h:'36px', p:'0 1.375rem'}},
+              {label:'Default — 48px', val:{h:'48px', p:'0 2.25rem'}},
+              {label:'Large — 56px', val:{h:'56px', p:'0 2.75rem'}},
+              {label:'Hero — 64px', val:{h:'64px', p:'0 3rem'}}
+            ]},
+          { label: 'Border Radius', key: 'btnRadius', type: 'direct',
+            opts: [
+              {label:'Sharp — 0px', val:'0px'},{label:'Subtle — 4px', val:'4px'},
+              {label:'Rounded — 8px', val:'8px'},{label:'Generous — 12px', val:'12px'},
+              {label:'Pill — 9999px', val:'9999px'}
+            ]},
+        ],
+        spacing: [
+          { label: 'Hero Padding', key: 'heroPad', type: 'hero-pad',
+            opts: [
+              {label:'Compact', val:'2rem 2rem'},{label:'Default', val:'clamp(3rem, 7vw, 5.5rem) clamp(2rem, 6vw, 5rem)'},
+              {label:'Generous', val:'5rem 4rem'},{label:'Expansive', val:'7rem 5rem'}
+            ]},
+          { label: 'Content Gap', key: 'gap', type: 'direct',
+            opts: [
+              {label:'Tight — 0.75rem', val:'0.75rem'},{label:'Snug — 1.25rem', val:'1.25rem'},
+              {label:'Default — 1.875rem', val:'1.875rem'},{label:'Loose — 2.5rem', val:'2.5rem'},
+              {label:'Open — 3.5rem', val:'3.5rem'}
+            ]},
+        ],
+      };
+
+      // ── Render a panel ─────────────────────────────────────────
+      function renderPanel(key) {
+        const controls = PANELS[key];
+        const inner = document.createElement('div');
+        inner.className = 'play-panel-inner';
+
+        controls.forEach(ctrl => {
+          const wrap = document.createElement('div');
+          wrap.className = 'play-ctrl';
+
+          const lbl = document.createElement('span');
+          lbl.className = 'play-ctrl-lbl';
+          lbl.textContent = ctrl.label;
+          wrap.appendChild(lbl);
+
+          const sel = document.createElement('select');
+          sel.className = 'play-sel';
+
+          ctrl.opts.forEach((opt, i) => {
+            const o = document.createElement('option');
+            o.textContent = opt.label;
+            o.value = typeof opt.val === 'object' ? JSON.stringify(opt.val) : opt.val;
+            // Mark current selection
+            if (ctrl.type === 'btn-size') {
+              if (opt.val.h === state.btnHeight) o.selected = true;
+            } else if (ctrl.key && state[ctrl.key] === opt.val) {
+              o.selected = true;
+            }
+            sel.appendChild(o);
+          });
+
+          sel.addEventListener('change', () => {
+            const raw = sel.value;
+            if (ctrl.type === 'font-head') {
+              const family = ctrl.opts[sel.selectedIndex].label;
+              loadGFont(family);
+              state.headFont = raw;
+              setVar('--play-head-font', raw);
+            } else if (ctrl.type === 'font-body') {
+              const family = ctrl.opts[sel.selectedIndex].label;
+              loadGFont(family);
+              state.bodyFont = raw;
+              setVar('--play-body-font', raw);
+            } else if (ctrl.type === 'btn-size') {
+              const v = JSON.parse(raw);
+              state.btnHeight = v.h; state.btnPad = v.p;
+              setVar('--play-btn-height', v.h);
+              setVar('--play-btn-pad', v.p);
+            } else if (ctrl.type === 'hero-pad') {
+              state.heroPad = raw;
+              preview.style.padding = raw;
+            } else if (ctrl.type === 'color') {
+              state[ctrl.key] = raw;
+              const cssMap = {
+                bg:'--play-bg', headColor:'--play-head-color',
+                bodyColor:'--play-body-color', accentColor:'--play-accent-color',
+                btnFill:'--play-btn-fill'
+              };
+              setVar(cssMap[ctrl.key], raw);
+              if (ctrl.key === 'btnFill') {
+                const isLight = raw === '#F9F8F6' || raw === '#EBE5DE' || raw === '#FDF8F0' || raw === '#F4F4F2';
+                setVar('--play-btn-text', isLight ? '#1A1A1A' : '#F9F8F6');
+              }
+            } else {
+              state[ctrl.key] = raw;
+              const cssMap = {
+                weight:'--play-weight', leading:'--play-leading',
+                tracking:'--play-tracking', btnRadius:'--play-btn-radius',
+                gap:'--play-gap'
+              };
+              if (cssMap[ctrl.key]) setVar(cssMap[ctrl.key], raw);
+            }
+          });
+
+          wrap.appendChild(sel);
+          inner.appendChild(wrap);
+        });
+
+        return inner;
+      }
+
+      // ── Toolbar panel toggle ───────────────────────────────────
+      let activePanel = null;
+      const tbLabels = document.querySelectorAll('.play-tb-lbl[data-panel]');
+
+      tbLabels.forEach(lbl => {
+        lbl.addEventListener('click', () => {
+          const key = lbl.dataset.panel;
+          if (activePanel === key) {
+            // close
+            activePanel = null;
+            panel.classList.remove('open');
+            panel.innerHTML = '';
+            tbLabels.forEach(l => l.classList.remove('active'));
+          } else {
+            activePanel = key;
+            tbLabels.forEach(l => l.classList.remove('active'));
+            lbl.classList.add('active');
+            panel.innerHTML = '';
+            panel.appendChild(renderPanel(key));
+            panel.classList.add('open');
+          }
+        });
+      });
+
+      // ── Reset ─────────────────────────────────────────────────
+      document.getElementById('playReset').addEventListener('click', () => {
+        state = Object.assign({}, DEFAULTS);
+        applyAll(state);
+        activePanel = null;
+        panel.classList.remove('open');
+        panel.innerHTML = '';
+        tbLabels.forEach(l => l.classList.remove('active'));
+      });
+
+      // ── IntersectionObserver — show/hide toolbar ───────────────
+      const io = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            toolbar.classList.add('visible');
+            toolbar.removeAttribute('aria-hidden');
+          } else {
+            toolbar.classList.remove('visible');
+            toolbar.setAttribute('aria-hidden', 'true');
+            // close panel when leaving section
+            activePanel = null;
+            panel.classList.remove('open');
+            panel.innerHTML = '';
+            tbLabels.forEach(l => l.classList.remove('active'));
+          }
+        });
+      }, { threshold: 0.05 });
+
+      io.observe(playSec);
+
+      // ── Play tab click → scroll to #play ──────────────────────
+      if (playTab) {
+        playTab.addEventListener('click', e => {
+          e.stopPropagation();
+          closeAllDropdowns();
+          // deactivate library tabs visually
+          tabs.forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
+          panels.forEach(p => p.classList.remove('active'));
+          playTab.classList.add('active');
+          playTab.setAttribute('aria-selected','true');
+          playSec.classList.add('active');
+          setTimeout(() => playSec.scrollIntoView({ behavior: 'smooth', block: 'start' }), 30);
+        });
+      }
+
+      // When other tabs are activated, hide play section
+      const origActivate = activateTab;
+      window.activateTab = function(tabName) {
+        playSec.classList.remove('active');
+        playTab && playTab.classList.remove('active');
+        origActivate(tabName);
+      };
+
+    })();
+
   </script>
 </body>
 </html>
