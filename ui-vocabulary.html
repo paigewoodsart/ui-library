@@ -1,0 +1,3959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UI Design Library</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ─── Design Tokens ──────────────────────────────────────── */
+    :root {
+      --bg:           #F9F8F6;
+      --fg:           #1A1A1A;
+      --muted-bg:     #EBE5DE;
+      --muted-fg:     #6C6863;
+      --accent:       #7A8FA3;
+      --border:       rgba(26,26,26,0.12);
+      --border-solid: #1A1A1A;
+      --danger:       #8B2635;
+      --success:      #2D7A4F;
+      --info:         #3B7DD8;
+      --warning:      #C27C1A;
+      --serif:        'Playfair Display', Georgia, serif;
+      --sans:         'Inter', -apple-system, sans-serif;
+      --mono:         'JetBrains Mono', 'Courier New', monospace;
+    }
+
+    /* ─── Reset & Base ───────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; overflow-x: clip; }
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--fg);
+      line-height: 1.625;
+      font-size: 16px;
+      min-height: 100vh;
+      overflow-x: clip;
+    }
+
+    /* Paper noise */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* Vertical grid lines */
+    .gridlines {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 2rem;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .gridline { width: 1px; height: 100%; background: rgba(26,26,26,0.06); }
+
+    /* ─── Header ─────────────────────────────────────────────── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 2.5rem;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      font-family: var(--serif);
+      font-size: 1rem;
+      color: var(--fg);
+      text-decoration: none;
+      letter-spacing: 0.03em;
+    }
+    .logo em { font-style: italic; color: var(--accent); }
+
+
+    /* ─── Annotation System ──────────────────────────────────── */
+    .al { display: flex; align-items: center; }
+    .al.al-top { align-items: flex-start; }
+    .al-el { flex-shrink: 0; }
+    .al-el.al-full { flex: 1; width: 100%; }
+    .al-ann {
+      display: flex; align-items: center;
+      padding-left: 1rem; flex-shrink: 0; pointer-events: none;
+    }
+    .al-line {
+      display: block; height: 1px; width: var(--lw, 48px);
+      background: var(--accent); flex-shrink: 0;
+      transform-origin: left center; transform: scaleX(0);
+      animation: alGrow 0.55s cubic-bezier(0.4,0,0.2,1) forwards var(--ad, 0.4s);
+    }
+    .al-dot {
+      display: block; width: 3px; height: 3px; border-radius: 50%;
+      background: var(--accent); flex-shrink: 0; opacity: 0;
+      animation: alFade 0.15s ease forwards calc(var(--ad, 0.4s) + 0.5s);
+    }
+    .al-lbl {
+      display: block; padding-left: 0.5rem;
+      font-family: var(--sans); font-size: 0.4375rem;
+      letter-spacing: 0.24em; text-transform: uppercase;
+      color: var(--accent); white-space: nowrap; opacity: 0;
+      animation: alFade 0.3s ease forwards calc(var(--ad, 0.4s) + 0.53s);
+      pointer-events: auto; text-decoration: none; cursor: default;
+    }
+    a.al-lbl { cursor: pointer; }
+    a.al-lbl:hover { color: var(--fg); }
+    @keyframes alGrow { to { transform: scaleX(1); } }
+    @keyframes alFade { to { opacity: 1; } }
+
+    /* ─── Hero ───────────────────────────────────────────────── */
+    .page-hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 0 max(3rem, 9vw);
+      padding-top: 0;
+      position: relative; z-index: 1;
+    }
+    .hero-stack {
+      display: flex; flex-direction: column;
+      gap: 1.875rem; max-width: 680px;
+    }
+    .hero-overline {
+      font-family: var(--sans); font-size: 0.5rem;
+      letter-spacing: 0.3em; text-transform: uppercase; color: var(--muted-fg);
+    }
+    .hero-display {
+      font-family: var(--serif);
+      font-size: clamp(3.75rem, 7.5vw, 7rem);
+      font-weight: 500; line-height: 0.92; letter-spacing: -0.025em;
+    }
+    .hero-display em { font-style: italic; color: var(--accent); }
+    .hero-body {
+      font-family: var(--sans); font-size: 0.9375rem;
+      color: var(--muted-fg); line-height: 1.75; max-width: 40ch;
+    }
+    .btn-explore {
+      font-family: var(--serif); font-style: italic;
+      font-size: 0.8125rem; letter-spacing: 0.03em;
+      color: var(--muted-fg); background: var(--bg);
+      border: 1px solid var(--accent); padding: 0.625rem 1.625rem;
+      text-decoration: none; display: inline-block;
+      box-shadow: 0 2px 8px rgba(26,26,26,0.06);
+      transition: color 0.25s, border-color 0.25s, box-shadow 0.25s, transform 0.2s;
+    }
+    .btn-explore:hover {
+      color: var(--fg); border-color: var(--fg);
+      box-shadow: 0 6px 20px rgba(26,26,26,0.13);
+      transform: translateY(-2px);
+    }
+
+    /* ─── Tab Nav ────────────────────────────────────────────── */
+    .tab-nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+    .tab-nav-scroll {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 2.5rem;
+      display: flex;
+      overflow: visible;
+      scrollbar-width: none;
+    }
+    .tab-nav-scroll::-webkit-scrollbar { display: none; }
+    .tab-nav { overflow: visible; }
+    .tab-btn {
+      font-family: var(--sans);
+      font-size: 0.625rem;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      padding: 1.125rem 1.25rem;
+      color: var(--muted-fg);
+      cursor: pointer;
+      white-space: nowrap;
+      margin-bottom: -1px;
+      transition: color 0.4s ease-out, border-color 0.4s ease-out;
+    }
+    .tab-btn:hover { color: var(--fg); }
+    .tab-btn.active { color: var(--fg); border-bottom-color: var(--accent); }
+
+    /* ─── Tab Dropdowns ──────────────────────────────────────── */
+    .tab-dd { position: relative; display: flex; flex-shrink: 0; }
+    .tab-chev {
+      display: inline-block;
+      font-size: 0.45rem;
+      margin-left: 0.35rem;
+      opacity: 0.5;
+      vertical-align: middle;
+      transition: transform 0.2s ease;
+    }
+    .tab-dd.open .tab-chev,
+    .tab-dd:hover .tab-chev { transform: rotate(180deg); opacity: 1; }
+    .tab-dd-menu {
+      position: absolute;
+      top: calc(100% + 1px);
+      left: 0;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-top: 2px solid var(--accent);
+      list-style: none;
+      min-width: 188px;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-6px);
+      transition: opacity 0.18s ease, transform 0.18s ease;
+      box-shadow: 0 8px 24px rgba(26,26,26,0.08);
+    }
+    .tab-dd:hover .tab-dd-menu,
+    .tab-dd.open .tab-dd-menu {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+    .tab-dd-item {
+      display: block;
+      padding: 0.6rem 1.25rem;
+      font-family: var(--sans);
+      font-size: 0.5375rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted-fg);
+      text-decoration: none;
+      border-bottom: 1px solid var(--border);
+      transition: color 0.15s ease, background 0.15s ease, padding-left 0.15s ease;
+      cursor: pointer;
+    }
+    .tab-dd-item:last-child { border-bottom: none; }
+    .tab-dd-item:first-child { color: var(--fg); font-weight: 500; }
+    .tab-dd-item:hover { color: var(--fg); background: var(--muted-bg); padding-left: 1.5rem; }
+
+    /* ─── Main Layout ────────────────────────────────────────── */
+    .main {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 2.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ─── Tab Panels ─────────────────────────────────────────── */
+    .tab-panel { display: none; padding: 2rem 0 6rem; }
+    .tab-panel.active { display: block; }
+
+    /* ─── Term Rows ──────────────────────────────────────────── */
+    .term-list { list-style: none; }
+    .term-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      padding: 2.75rem 0;
+      border-top: 1px solid var(--border);
+      align-items: center;
+    }
+    .term-row:last-child { border-bottom: 1px solid var(--border); }
+    .term-tag {
+      display: inline-block;
+      font-size: 0.5625rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--muted-fg);
+      border: 1px solid var(--border);
+      padding: 0.2rem 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .term-name {
+      font-family: var(--serif);
+      font-size: 1.1875rem;
+      font-weight: 400;
+      margin-bottom: 0.5rem;
+      color: var(--fg);
+    }
+    .term-desc {
+      font-size: 0.875rem;
+      color: var(--muted-fg);
+      line-height: 1.7;
+      max-width: 44ch;
+    }
+
+    /* ─── Responsive ─────────────────────────────────────────── */
+    @media (max-width: 720px) {
+      .gridlines { display: none; }
+
+      /* Hero */
+      .page-hero {
+        padding: 3rem 1.5rem 3rem;
+        min-height: 100svh;
+        justify-content: center;
+      }
+      .hero-stack { gap: 1.25rem; max-width: 100%; }
+      .hero-display { font-size: clamp(2.75rem, 12vw, 4rem); }
+      .hero-body { font-size: 0.875rem; max-width: 100%; }
+
+      /* Hide annotations on mobile */
+      .al-ann { display: none; }
+      .al { display: block; }
+
+      /* Tab nav — flush to top, clips to show "Color" peeking */
+      .tab-nav {
+        top: 0;
+        -webkit-mask-image: linear-gradient(to right, black 82%, transparent 100%);
+        mask-image: linear-gradient(to right, black 82%, transparent 100%);
+      }
+      .tab-nav-scroll { padding: 0 5rem 0 1.5rem; overflow-x: auto; overflow-y: visible; }
+      .tab-btn { height: 48px; padding: 0 1.25rem; font-size: 0.5625rem; white-space: nowrap; flex-shrink: 0; }
+      .tab-dd-menu { display: none; }
+
+      /* Main content */
+      .main { padding: 0 1.5rem; }
+      .term-row { grid-template-columns: 1fr; gap: 1.5rem; padding: 2.25rem 0; }
+      .term-demo { order: 2; }
+      .term-info { order: 1; }
+      .term-tag { display: none; }
+
+      /* Button: left-aligned, fit content */
+      .btn-explore { width: auto; display: inline-block; }
+    }
+
+    /* ─── Reduced motion ─────────────────────────────────────── */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition-duration: 0ms !important; animation-duration: 0ms !important; }
+    }
+
+
+    /* ════════════════════════════════════════════════════════════
+       BUTTONS
+    ════════════════════════════════════════════════════════════ */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-family: var(--sans);
+      font-size: 0.625rem;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: none;
+      border-radius: 0;
+      position: relative;
+      overflow: hidden;
+      transition: box-shadow 0.5s ease-out, color 0.5s ease-out, background 0.5s ease-out;
+    }
+
+    /* Primary */
+    .btn-primary {
+      height: 48px;
+      padding: 0 2.25rem;
+      background: var(--fg);
+      color: var(--bg);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.14);
+    }
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--accent);
+      transform: translateX(-100%);
+      transition: transform 0.5s cubic-bezier(0.25,0.46,0.45,0.94);
+    }
+    .btn-primary:hover::before { transform: translateX(0); }
+    .btn-primary:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.22); }
+    .btn-primary .lbl { position: relative; z-index: 1; }
+
+    /* Secondary */
+    .btn-secondary {
+      height: 48px;
+      padding: 0 2.25rem;
+      background: transparent;
+      color: var(--fg);
+      border: 1px solid var(--fg);
+    }
+    .btn-secondary:hover { background: var(--fg); color: var(--bg); }
+
+    /* Ghost */
+    .btn-ghost {
+      height: 48px;
+      padding: 0 0.5rem;
+      background: transparent;
+      color: var(--fg);
+    }
+    .btn-ghost::after {
+      content: '';
+      position: absolute;
+      bottom: 6px; left: 0;
+      width: 0; height: 1px;
+      background: var(--accent);
+      transition: width 0.5s ease-out;
+    }
+    .btn-ghost:hover { color: var(--accent); }
+    .btn-ghost:hover::after { width: 100%; }
+
+    /* Destructive */
+    .btn-destructive {
+      height: 48px;
+      padding: 0 2.25rem;
+      background: var(--danger);
+      color: #F9F8F6;
+      box-shadow: 0 4px 16px rgba(139,38,53,0.2);
+    }
+    .btn-destructive:hover {
+      background: #6B1D29;
+      box-shadow: 0 8px 24px rgba(139,38,53,0.3);
+    }
+
+    /* Disabled */
+    .btn-disabled {
+      height: 48px;
+      padding: 0 2.25rem;
+      background: var(--fg);
+      color: var(--bg);
+      opacity: 0.3;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    /* Sizes */
+    .btn-sm { height: 36px; padding: 0 1.375rem; font-size: 0.5625rem; }
+    .btn-lg { height: 56px; padding: 0 2.75rem; font-size: 0.6875rem; }
+    .btn-size-demo { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+
+    /* Pill */
+    .btn-pill {
+      height: 48px;
+      padding: 0 2rem;
+      border-radius: 9999px;
+      background: var(--fg);
+      color: var(--bg);
+      transition: background 0.5s ease-out;
+    }
+    .btn-pill:hover { background: var(--accent); }
+
+    /* Icon */
+    .btn-icon {
+      width: 48px; height: 48px;
+      padding: 0;
+      background: transparent;
+      color: var(--fg);
+      border: 1px solid var(--border);
+      transition: all 0.5s ease-out;
+    }
+    .btn-icon:hover { border-color: var(--fg); background: var(--fg); color: var(--bg); }
+
+    /* Block */
+    .btn-block {
+      display: flex;
+      width: 100%;
+      max-width: 280px;
+      height: 48px;
+      padding: 0;
+      background: var(--fg);
+      color: var(--bg);
+      justify-content: center;
+      transition: background 0.5s ease-out;
+    }
+    .btn-block:hover { background: var(--accent); }
+
+
+    /* ════════════════════════════════════════════════════════════
+       TYPOGRAPHY
+    ════════════════════════════════════════════════════════════ */
+    .t-display {
+      font-family: var(--serif);
+      font-size: clamp(2rem, 5vw, 3.25rem);
+      font-weight: 400;
+      line-height: 0.95;
+      letter-spacing: -0.015em;
+    }
+    .t-h1 {
+      font-family: var(--serif);
+      font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+      font-weight: 400;
+      line-height: 1.05;
+    }
+    .t-h2 {
+      font-family: var(--serif);
+      font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+      font-weight: 400;
+      line-height: 1.2;
+    }
+    .t-h3 {
+      font-family: var(--serif);
+      font-size: 1.125rem;
+      font-weight: 500;
+      line-height: 1.3;
+    }
+    .t-body {
+      font-family: var(--sans);
+      font-size: 1rem;
+      line-height: 1.7;
+      max-width: 42ch;
+    }
+    .t-caption {
+      font-size: 0.625rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--muted-fg);
+    }
+    .t-weight-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      font-size: 1.375rem;
+    }
+    .t-family-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 0.625rem;
+      font-size: 1.125rem;
+    }
+    .t-lh-demo {
+      font-size: 0.8125rem;
+      max-width: 26ch;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .t-lh-demo .swatch {
+      padding: 0.5rem 0.75rem;
+      border-left: 2px solid var(--border);
+    }
+    .t-tracking-demo {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+    }
+
+
+    /* ════════════════════════════════════════════════════════════
+       LINES & BORDERS
+    ════════════════════════════════════════════════════════════ */
+    .stroke-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      width: 100%;
+      max-width: 300px;
+    }
+    .stroke-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .stroke-line { background: var(--fg); flex: 1; }
+    .stroke-label {
+      font-size: 0.5625rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted-fg);
+      white-space: nowrap;
+      width: 96px;
+      flex-shrink: 0;
+    }
+    .bstyle-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      width: 100%;
+      max-width: 280px;
+    }
+    .bstyle-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .bstyle-line { flex: 1; height: 0; }
+    .radius-row {
+      display: flex;
+      gap: 1.5rem;
+      align-items: flex-end;
+      flex-wrap: wrap;
+    }
+    .radius-item { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
+    .radius-swatch { width: 56px; height: 56px; background: var(--fg); }
+    .radius-lbl {
+      font-size: 0.5625rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted-fg);
+    }
+
+
+    /* ════════════════════════════════════════════════════════════
+       COLOR
+    ════════════════════════════════════════════════════════════ */
+    .color-roles {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    .color-chip-wrap { display: flex; flex-direction: column; align-items: center; gap: 0.3rem; }
+    .color-chip { width: 44px; height: 44px; border: 1px solid var(--border); }
+    .color-chip-name {
+      font-size: 0.5rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted-fg);
+    }
+    .color-ramp {
+      display: flex;
+      height: 36px;
+      width: 100%;
+      max-width: 300px;
+      overflow: hidden;
+    }
+    .ramp-step { flex: 1; }
+    .hue-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 0.625rem;
+    }
+    .hue-row { display: flex; align-items: center; gap: 0.875rem; }
+    .hue-chip { width: 56px; height: 32px; }
+    .hue-label { font-size: 0.6875rem; color: var(--muted-fg); }
+    .alpha-row { display: flex; gap: 0.5rem; align-items: flex-end; }
+    .alpha-wrap { display: flex; flex-direction: column; align-items: center; gap: 0.3rem; }
+    .alpha-chip { width: 40px; height: 40px; background: var(--info); }
+    .alpha-label { font-size: 0.5rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted-fg); }
+    .contrast-stack { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .contrast-block {
+      padding: 0.5rem 0.75rem;
+      font-size: 0.6875rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      display: flex;
+      flex-direction: column;
+      gap: 0.125rem;
+    }
+    .contrast-ratio { font-size: 0.5625rem; opacity: 0.7; letter-spacing: 0.1em; }
+
+
+    /* ════════════════════════════════════════════════════════════
+       SPACING
+    ════════════════════════════════════════════════════════════ */
+    .space-scale { display: flex; flex-direction: column; gap: 0.75rem; }
+    .space-row { display: flex; align-items: center; gap: 0.875rem; }
+    .space-bar { background: var(--accent); height: 14px; opacity: 0.65; flex-shrink: 0; }
+    .space-meta { display: flex; gap: 0.625rem; align-items: baseline; }
+    .space-px { font-family: var(--mono); font-size: 0.75rem; color: var(--fg); }
+    .space-token { font-size: 0.5625rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted-fg); }
+
+    .pad-gap-demo { display: flex; gap: 2rem; align-items: flex-start; flex-wrap: wrap; }
+    .pad-demo-label, .gap-demo-label {
+      font-size: 0.5625rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted-fg);
+      margin-bottom: 0.625rem;
+    }
+    .pad-box { border: 1px solid var(--fg); padding: 1.25rem; display: inline-block; }
+    .pad-inner { background: var(--muted-bg); width: 44px; height: 44px; }
+    .gap-items { display: flex; gap: 0.625rem; }
+    .gap-item { width: 32px; height: 32px; background: var(--fg); opacity: 0.18; }
+
+    .rhythm-demo {
+      border-left: 2px solid var(--accent);
+      padding-left: 1.25rem;
+      max-width: 30ch;
+    }
+    .rhythm-demo p { font-size: 0.875rem; line-height: 1.625; margin-bottom: 1.625rem; }
+    .rhythm-demo p:last-child { margin-bottom: 0; }
+
+
+    /* ════════════════════════════════════════════════════════════
+       INPUTS
+    ════════════════════════════════════════════════════════════ */
+    .input {
+      font-family: var(--sans);
+      font-size: 0.9375rem;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--border-solid);
+      color: var(--fg);
+      padding: 0.625rem 0;
+      width: 100%;
+      max-width: 280px;
+      outline: none;
+      transition: border-color 0.5s ease-out;
+      border-radius: 0;
+    }
+    .input::placeholder { font-family: var(--serif); font-style: italic; color: var(--muted-fg); }
+    .input:focus { border-bottom-color: var(--accent); }
+    .input.is-error { border-bottom-color: var(--danger) !important; }
+    .input.is-focus { border-bottom-color: var(--accent); }
+    .input:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    .textarea {
+      font-family: var(--sans);
+      font-size: 0.9375rem;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--fg);
+      padding: 0.75rem;
+      width: 100%;
+      max-width: 280px;
+      min-height: 96px;
+      outline: none;
+      resize: vertical;
+      border-radius: 0;
+      transition: border-color 0.5s ease-out;
+    }
+    .textarea::placeholder { font-family: var(--serif); font-style: italic; color: var(--muted-fg); }
+    .textarea:focus { border-color: var(--accent); }
+
+    .select {
+      font-family: var(--sans);
+      font-size: 0.875rem;
+      background: var(--bg);
+      border: none;
+      border-bottom: 1px solid var(--border-solid);
+      color: var(--fg);
+      padding: 0.625rem 1.75rem 0.625rem 0;
+      width: 100%;
+      max-width: 280px;
+      outline: none;
+      appearance: none;
+      cursor: pointer;
+      border-radius: 0;
+      background-repeat: no-repeat;
+      background-position: right 0 center;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%231A1A1A' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      transition: border-color 0.5s ease-out;
+    }
+    .select:focus { border-bottom-color: var(--accent); }
+
+    .radio-group, .check-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .radio-lbl, .check-lbl {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.875rem;
+      color: var(--fg);
+      cursor: pointer;
+    }
+    .radio-input {
+      appearance: none;
+      width: 18px; height: 18px;
+      border: 1px solid var(--border-solid);
+      border-radius: 50%;
+      background: transparent;
+      cursor: pointer;
+      flex-shrink: 0;
+      position: relative;
+      transition: border-color 0.35s ease-out;
+    }
+    .radio-input:checked { border-color: var(--accent); }
+    .radio-input:checked::after {
+      content: '';
+      position: absolute;
+      inset: 3px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+    .check-input {
+      appearance: none;
+      width: 18px; height: 18px;
+      border: 1px solid var(--border-solid);
+      border-radius: 0;
+      background: transparent;
+      cursor: pointer;
+      flex-shrink: 0;
+      position: relative;
+      transition: all 0.35s ease-out;
+    }
+    .check-input:checked { background: var(--fg); border-color: var(--fg); }
+    .check-input:checked::after {
+      content: '';
+      position: absolute;
+      left: 4px; top: 1px;
+      width: 7px; height: 11px;
+      border-right: 1.5px solid var(--bg);
+      border-bottom: 1.5px solid var(--bg);
+      transform: rotate(45deg);
+    }
+
+    .toggle-wrap { display: flex; align-items: center; gap: 0.75rem; font-size: 0.875rem; }
+    .toggle-track {
+      width: 44px; height: 24px;
+      border: 1px solid var(--border);
+      background: var(--muted-bg);
+      position: relative;
+      cursor: pointer;
+      border-radius: 0;
+      transition: background 0.5s ease-out, border-color 0.5s ease-out;
+      flex-shrink: 0;
+    }
+    .toggle-track.on { background: var(--fg); border-color: var(--fg); }
+    .toggle-thumb {
+      position: absolute;
+      top: 2px; left: 2px;
+      width: 18px; height: 18px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      transition: transform 0.5s cubic-bezier(0.25,0.46,0.45,0.94);
+    }
+    .toggle-track.on .toggle-thumb { transform: translateX(20px); border-color: transparent; }
+
+    .slider {
+      -webkit-appearance: none;
+      width: 100%; max-width: 280px;
+      height: 1px;
+      background: var(--border-solid);
+      outline: none;
+      cursor: pointer;
+      border-radius: 0;
+    }
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px; height: 18px;
+      border-radius: 0;
+      background: var(--fg);
+      border: 1px solid var(--fg);
+      cursor: pointer;
+      transition: background 0.35s ease-out, border-color 0.35s ease-out;
+    }
+    .slider::-webkit-slider-thumb:hover { background: var(--accent); border-color: var(--accent); }
+    .slider::-moz-range-thumb {
+      width: 18px; height: 18px;
+      border-radius: 0;
+      background: var(--fg);
+      border: 1px solid var(--fg);
+      cursor: pointer;
+    }
+
+    .states-stack { display: flex; flex-direction: column; gap: 1.5rem; }
+    .state-lbl {
+      font-size: 0.5625rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted-fg);
+      margin-bottom: 0.375rem;
+    }
+    .error-hint {
+      font-size: 0.6875rem;
+      color: var(--danger);
+      margin-top: 0.375rem;
+      letter-spacing: 0.03em;
+    }
+
+    /* ════════════════════════════════════════════════════════════
+       SHOWCASE SECTIONS
+    ════════════════════════════════════════════════════════════ */
+    .showcase {
+      margin-top: 4rem;
+      padding-top: 3.5rem;
+      border-top: 1px solid var(--fg);
+    }
+    .showcase-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 3.5rem;
+    }
+    .showcase-eyebrow {
+      font-size: 0.5625rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--accent);
+      white-space: nowrap;
+    }
+    .showcase-header::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+    .showcase-section { margin-bottom: 3.5rem; }
+    .showcase-section-title {
+      font-size: 0.5625rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--muted-fg);
+      margin-bottom: 0;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .sc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      margin-top: 1px;
+      /* full-bleed: break out of .main padding and max-width */
+      width: 100vw;
+      position: relative;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .sc-grid.sc-wide { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+    .sc-grid.sc-narrow { grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); }
+    .sc-item {
+      background: var(--bg);
+      padding: 1.75rem 1.25rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.875rem;
+    }
+    .sc-demo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 68px;
+      flex: 1;
+    }
+    .sc-demo.sc-demo-left { justify-content: flex-start; }
+    .sc-demo.sc-demo-tall { min-height: 120px; }
+    .sc-label {
+      font-size: 0.6875rem;
+      font-weight: 500;
+      color: var(--fg);
+      letter-spacing: 0.02em;
+    }
+    .sc-desc {
+      font-size: 0.6875rem;
+      color: var(--muted-fg);
+      line-height: 1.55;
+      margin-top: -0.25rem;
+    }
+
+    @media (max-width: 720px) {
+      .sc-grid {
+        grid-template-columns: repeat(2, 1fr);
+        width: 100vw;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--bg);
+      }
+      .sc-grid.sc-narrow { grid-template-columns: repeat(2, 1fr); }
+      .sc-grid > .sc-item:last-child:nth-child(odd) {
+        grid-column: 1 / -1;
+      }
+      .sc-item {
+        padding: 1.25rem 1rem 1rem;
+        min-height: 160px;
+      }
+      .sc-demo { min-height: 80px; }
+      .sc-demo.sc-demo-tall { min-height: 100px; }
+    }
+
+    /* ── Button showcase variants ── */
+    .btn-micro  { height: 28px; padding: 0 0.875rem; font-size: 0.5rem; letter-spacing: 0.18em; }
+    .btn-hero   { height: 64px; padding: 0 3rem; font-size: 0.75rem; letter-spacing: 0.25em; }
+    .btn-r4     { border-radius: 4px; }
+    .btn-r8     { border-radius: 8px; }
+    .btn-r12    { border-radius: 12px; }
+
+    .btn-accent {
+      height: 48px; padding: 0 2rem;
+      background: var(--accent); color: var(--fg);
+      font-family: var(--sans); font-size: 0.625rem; font-weight: 500;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      border: none; border-radius: 0; cursor: pointer;
+      transition: background 0.5s ease-out, color 0.5s ease-out;
+    }
+    .btn-accent:hover { background: var(--fg); color: var(--bg); }
+
+    .btn-outlined-only {
+      height: 48px; padding: 0 2rem;
+      background: transparent; color: var(--accent);
+      border: 1px solid var(--accent); border-radius: 0;
+      font-family: var(--sans); font-size: 0.625rem; font-weight: 500;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      cursor: pointer; transition: all 0.5s ease-out;
+    }
+    .btn-outlined-only:hover { background: var(--accent); color: var(--fg); }
+
+    /* hover: sweep up from bottom */
+    .btn-sweep {
+      height: 48px; padding: 0 2rem;
+      background: transparent; color: var(--fg);
+      border: 1px solid var(--fg); border-radius: 0;
+      font-family: var(--sans); font-size: 0.625rem; font-weight: 500;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      cursor: pointer; overflow: hidden; position: relative;
+    }
+    .btn-sweep::before {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 100%; height: 0;
+      background: var(--fg);
+      transition: height 0.45s cubic-bezier(0.25,0.46,0.45,0.94);
+      z-index: 0;
+    }
+    .btn-sweep .lbl { position: relative; z-index: 1; }
+    .btn-sweep:hover::before { height: 100%; }
+    .btn-sweep:hover { color: var(--bg); }
+
+    /* hover: shadow lift + rise */
+    .btn-lift {
+      height: 48px; padding: 0 2rem;
+      background: var(--fg); color: var(--bg);
+      border: none; border-radius: 0;
+      font-family: var(--sans); font-size: 0.625rem; font-weight: 500;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+      transition: box-shadow 0.4s ease-out, transform 0.4s ease-out;
+    }
+    .btn-lift:hover { box-shadow: 0 16px 40px rgba(0,0,0,0.24); transform: translateY(-3px); }
+
+    /* hover: gold glow ring */
+    .btn-glow {
+      height: 48px; padding: 0 2rem;
+      background: var(--fg); color: var(--bg);
+      border: none; border-radius: 0;
+      font-family: var(--sans); font-size: 0.625rem; font-weight: 500;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      cursor: pointer; transition: box-shadow 0.5s ease-out;
+    }
+    .btn-glow:hover { box-shadow: 0 0 0 3px var(--bg), 0 0 0 5px var(--accent); }
+
+    /* hover: scale grow */
+    .btn-scale-grow {
+      height: 48px; padding: 0 2rem;
+      background: var(--fg); color: var(--bg);
+      border: none; border-radius: 0;
+      font-family: var(--sans); font-size: 0.625rem; font-weight: 500;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      cursor: pointer; transition: transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94), box-shadow 0.35s ease-out;
+    }
+    .btn-scale-grow:hover { transform: scale(1.05); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+
+    /* hover: centered underline reveal */
+    .btn-underline {
+      height: 48px; padding: 0 0.5rem;
+      background: transparent; color: var(--fg);
+      border: none; border-radius: 0;
+      font-family: var(--sans); font-size: 0.625rem; font-weight: 500;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      cursor: pointer; position: relative; overflow: visible;
+    }
+    .btn-underline::after {
+      content: '';
+      position: absolute;
+      bottom: 8px; left: 50%;
+      width: 0; height: 1px;
+      background: var(--accent);
+      transition: width 0.4s ease-out, left 0.4s ease-out;
+    }
+    .btn-underline:hover { color: var(--accent); }
+    .btn-underline:hover::after { width: 100%; left: 0; }
+
+    /* hover: border color flash to gold */
+    .btn-border-gold {
+      height: 48px; padding: 0 2rem;
+      background: transparent; color: var(--fg);
+      border: 1px solid var(--border); border-radius: 0;
+      font-family: var(--sans); font-size: 0.625rem; font-weight: 500;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      cursor: pointer; transition: border-color 0.5s ease-out, color 0.5s ease-out;
+    }
+    .btn-border-gold:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* hover: wipe right (white text, gold fill right) */
+    .btn-wipe-right {
+      height: 48px; padding: 0 2rem;
+      background: transparent; color: var(--fg);
+      border: 1px solid var(--fg); border-radius: 0;
+      font-family: var(--sans); font-size: 0.625rem; font-weight: 500;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      cursor: pointer; overflow: hidden; position: relative;
+    }
+    .btn-wipe-right::before {
+      content: '';
+      position: absolute;
+      top: 0; right: 0;
+      width: 0; height: 100%;
+      background: var(--accent);
+      transition: width 0.45s cubic-bezier(0.25,0.46,0.45,0.94);
+      z-index: 0;
+    }
+    .btn-wipe-right .lbl { position: relative; z-index: 1; }
+    .btn-wipe-right:hover::before { width: 100%; }
+    .btn-wipe-right:hover { color: var(--fg); border-color: var(--accent); }
+
+    /* special states */
+    .btn-loading-state {
+      height: 48px; padding: 0 2rem;
+      background: var(--fg); color: var(--bg); opacity: 0.65;
+      border: none; border-radius: 0; cursor: wait; pointer-events: none;
+      font-family: var(--sans); font-size: 0.625rem; font-weight: 500;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      display: inline-flex; align-items: center; gap: 0.625rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      width: 13px; height: 13px;
+      border: 1.5px solid rgba(249,248,246,0.25);
+      border-top-color: #F9F8F6;
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+      flex-shrink: 0;
+    }
+    .btn-success-state {
+      height: 48px; padding: 0 2rem;
+      background: var(--success); color: #F9F8F6;
+      border: none; border-radius: 0; pointer-events: none;
+      font-family: var(--sans); font-size: 0.625rem; font-weight: 500;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      display: inline-flex; align-items: center; gap: 0.625rem;
+    }
+    .btn-icon-circle {
+      width: 48px; height: 48px; border-radius: 50%;
+      padding: 0; background: var(--fg); color: var(--bg);
+      border: none; cursor: pointer; display: inline-flex;
+      align-items: center; justify-content: center;
+      transition: background 0.5s ease-out;
+    }
+    .btn-icon-circle:hover { background: var(--accent); }
+
+    /* ── Typography showcase ── */
+    .ts-ramp-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.375rem;
+      padding: 1.5rem 1.25rem;
+    }
+    .ts-ramp-item .size-lbl {
+      font-size: 0.5rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted-fg);
+    }
+
+    /* ── Border / Shadow showcase ── */
+    .border-card-demo {
+      width: 100%;
+      padding: 1rem;
+      background: var(--bg);
+      font-size: 0.75rem;
+      color: var(--muted-fg);
+    }
+    .shadow-demo-box {
+      width: 64px; height: 64px;
+      background: var(--bg);
+    }
+
+    /* ── Color showcase ── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-family: var(--sans);
+      font-size: 0.5625rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.25rem 0.625rem;
+      border-radius: 0;
+    }
+    .badge-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .badge-info    { background: rgba(59,125,216,0.12); color: #1A4A8A; }
+    .badge-success { background: rgba(45,122,79,0.12);  color: #1A5230; }
+    .badge-warning { background: rgba(194,124,26,0.12); color: #7A4A0A; }
+    .badge-danger  { background: rgba(139,38,53,0.12);  color: #6B1D29; }
+    .badge-neutral { background: var(--muted-bg); color: var(--muted-fg); }
+
+    .color-text-demo {
+      padding: 1rem;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      width: 100%;
+    }
+
+    /* ── Spacing showcase ── */
+    .density-card {
+      border: 1px solid var(--border);
+      background: var(--bg);
+      width: 100%;
+    }
+    .density-card .dc-inner {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .density-card .dc-line {
+      height: 8px;
+      background: var(--muted-bg);
+      border-radius: 0;
+    }
+    .density-card .dc-line.short { width: 60%; }
+    .density-card .dc-line.xshort { width: 40%; }
+
+    .gap-demo-row {
+      display: flex;
+      align-items: center;
+    }
+    .gap-block { width: 28px; height: 28px; background: var(--fg); opacity: 0.2; }
+
+    /* ── Input showcase variants ── */
+    .input-outlined-style {
+      font-family: var(--sans);
+      font-size: 0.9375rem;
+      background: transparent;
+      border: 1px solid var(--border-solid);
+      color: var(--fg);
+      padding: 0.625rem 0.75rem;
+      width: 100%; max-width: 240px;
+      outline: none;
+      transition: border-color 0.5s ease-out;
+      border-radius: 0;
+    }
+    .input-outlined-style::placeholder { font-family: var(--serif); font-style: italic; color: var(--muted-fg); }
+    .input-outlined-style:focus { border-color: var(--accent); }
+
+    .input-filled-style {
+      font-family: var(--sans);
+      font-size: 0.9375rem;
+      background: var(--muted-bg);
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--fg);
+      padding: 0.75rem;
+      width: 100%; max-width: 240px;
+      outline: none;
+      transition: border-color 0.5s ease-out;
+      border-radius: 0;
+    }
+    .input-filled-style::placeholder { font-family: var(--serif); font-style: italic; color: var(--muted-fg); }
+    .input-filled-style:focus { border-bottom-color: var(--accent); }
+
+    .input-affix-wrap {
+      display: flex;
+      align-items: stretch;
+      border-bottom: 1px solid var(--border-solid);
+      max-width: 240px;
+      transition: border-color 0.5s ease-out;
+    }
+    .input-affix-wrap:focus-within { border-bottom-color: var(--accent); }
+    .input-affix {
+      font-family: var(--sans);
+      font-size: 0.9375rem;
+      background: transparent;
+      border: none;
+      color: var(--fg);
+      padding: 0.625rem 0;
+      flex: 1;
+      outline: none;
+      min-width: 0;
+    }
+    .input-affix::placeholder { font-family: var(--serif); font-style: italic; color: var(--muted-fg); }
+    .affix-icon {
+      display: flex; align-items: center;
+      color: var(--muted-fg);
+      padding-right: 0.5rem;
+      flex-shrink: 0;
+    }
+    .affix-btn {
+      font-family: var(--sans); font-size: 0.5625rem; font-weight: 500;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      background: var(--fg); color: var(--bg);
+      border: none; padding: 0 0.875rem; cursor: pointer;
+      flex-shrink: 0; transition: background 0.4s ease-out;
+    }
+    .affix-btn:hover { background: var(--accent); }
+
+    .float-label-wrap {
+      position: relative;
+      max-width: 240px;
+      padding-top: 1.25rem;
+      border-bottom: 1px solid var(--border-solid);
+    }
+    .float-label-input {
+      font-family: var(--sans); font-size: 0.9375rem;
+      background: transparent; border: none;
+      color: var(--fg); padding: 0.375rem 0;
+      width: 100%; outline: none;
+    }
+    .float-label {
+      position: absolute;
+      top: 1.6rem; left: 0;
+      font-family: var(--serif); font-style: italic;
+      font-size: 0.9375rem; color: var(--muted-fg);
+      transition: all 0.4s ease-out;
+      pointer-events: none;
+    }
+    .float-label-input:focus ~ .float-label,
+    .float-label-input:not(:placeholder-shown) ~ .float-label {
+      top: 0;
+      font-size: 0.5625rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-family: var(--sans);
+      font-style: normal;
+      color: var(--accent);
+    }
+    .float-label-wrap:focus-within { border-bottom-color: var(--accent); }
+
+    .input-hint-wrap { max-width: 240px; }
+    .input-hint {
+      font-size: 0.6875rem;
+      color: var(--muted-fg);
+      margin-top: 0.375rem;
+      letter-spacing: 0.02em;
+    }
+
+    .input-compact {
+      font-family: var(--sans); font-size: 0.8125rem;
+      background: transparent; border: none;
+      border-bottom: 1px solid var(--border-solid);
+      color: var(--fg); padding: 0.375rem 0;
+      width: 100%; max-width: 240px; outline: none;
+    }
+    .input-large {
+      font-family: var(--sans); font-size: 1.125rem;
+      background: transparent; border: none;
+      border-bottom: 1px solid var(--border-solid);
+      color: var(--fg); padding: 0.875rem 0;
+      width: 100%; max-width: 240px; outline: none;
+    }
+    .input-compact::placeholder, .input-large::placeholder {
+      font-family: var(--serif); font-style: italic; color: var(--muted-fg);
+    }
+    .input-compact:focus, .input-large:focus { border-bottom-color: var(--accent); }
+
+    .char-count-wrap { position: relative; max-width: 240px; }
+    .char-count-input {
+      font-family: var(--sans); font-size: 0.9375rem;
+      background: transparent; border: none;
+      border-bottom: 1px solid var(--border-solid);
+      color: var(--fg); padding: 0.625rem 2.5rem 0.625rem 0;
+      width: 100%; outline: none;
+    }
+    .char-count-input::placeholder { font-family: var(--serif); font-style: italic; color: var(--muted-fg); }
+    .char-count { position: absolute; right: 0; bottom: 0.625rem; font-size: 0.5625rem; color: var(--muted-fg); letter-spacing: 0.1em; }
+
+    .inline-group { display: flex; gap: 0.5rem; max-width: 240px; }
+    .inline-group .input { max-width: none; }
+
+  </style>
+</head>
+<body>
+
+  <!-- Grid lines -->
+  <div class="gridlines" aria-hidden="true">
+    <div class="gridline"></div>
+    <div class="gridline"></div>
+    <div class="gridline"></div>
+    <div class="gridline"></div>
+    <div class="gridline"></div>
+    <div class="gridline"></div>
+    <div class="gridline"></div>
+    <div class="gridline"></div>
+    <div class="gridline"></div>
+    <div class="gridline"></div>
+    <div class="gridline"></div>
+    <div class="gridline"></div>
+  </div>
+
+  <!-- Page Hero -->
+  <div class="page-hero" aria-label="Introduction">
+    <div class="hero-stack">
+
+      <div class="al" style="--ad:0.25s">
+        <p class="al-el hero-overline">Design System Reference</p>
+        <div class="al-ann">
+          <span class="al-line" style="--lw:52px"></span>
+          <span class="al-dot"></span>
+          <span class="al-lbl">Overline / Eyebrow</span>
+        </div>
+      </div>
+
+      <div class="al al-top" style="--ad:0.55s">
+        <h1 class="al-el hero-display">UI Design<br><em>Library</em></h1>
+        <div class="al-ann" style="padding-top:0.5rem">
+          <span class="al-line" style="--lw:64px"></span>
+          <span class="al-dot"></span>
+          <span class="al-lbl">Display / Hero — 72pt</span>
+        </div>
+      </div>
+
+      <div class="al al-top" style="--ad:0.85s">
+        <p class="al-el hero-body">Every term rendered live. Not described, not screenshotted. The actual element, working in your browser.</p>
+        <div class="al-ann" style="padding-top:0.25rem">
+          <span class="al-line" style="--lw:52px"></span>
+          <span class="al-dot"></span>
+          <span class="al-lbl">Body Copy — 15pt / 1.75lh</span>
+        </div>
+      </div>
+
+      <div class="al" style="--ad:1.1s">
+        <a href="#library-nav" class="btn-explore al-el"><em>explore more</em></a>
+        <div class="al-ann">
+          <span class="al-line" style="--lw:52px"></span>
+          <span class="al-dot"></span>
+          <span class="al-lbl">Outlined Button — 1px border / shadow lift</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Tab Navigation -->
+  <nav class="tab-nav" id="library-nav" aria-label="Design categories">
+    <div class="tab-nav-scroll" role="tablist">
+
+      <div class="tab-dd">
+        <button class="tab-btn active" role="tab" aria-selected="true" data-tab="buttons">Buttons<span class="tab-chev" aria-hidden="true">▾</span></button>
+        <ul class="tab-dd-menu" aria-label="Buttons sections">
+          <li><a class="tab-dd-item" data-tab="buttons" data-target="panel-buttons">All Buttons</a></li>
+          <li><a class="tab-dd-item" data-tab="buttons" data-target="btn-shape">Shape &amp; Radius</a></li>
+          <li><a class="tab-dd-item" data-tab="buttons" data-target="btn-fill">Fill &amp; Weight</a></li>
+          <li><a class="tab-dd-item" data-tab="buttons" data-target="btn-size">Size Scale</a></li>
+          <li><a class="tab-dd-item" data-tab="buttons" data-target="btn-animations">Hover Animations</a></li>
+          <li><a class="tab-dd-item" data-tab="buttons" data-target="btn-icons">Icon Placement</a></li>
+          <li><a class="tab-dd-item" data-tab="buttons" data-target="btn-states">States</a></li>
+        </ul>
+      </div>
+
+      <div class="tab-dd">
+        <button class="tab-btn" role="tab" aria-selected="false" data-tab="type">Typography<span class="tab-chev" aria-hidden="true">▾</span></button>
+        <ul class="tab-dd-menu" aria-label="Typography sections">
+          <li><a class="tab-dd-item" data-tab="type" data-target="panel-type">All Typography</a></li>
+          <li><a class="tab-dd-item" data-tab="type" data-target="type-scale">Type Scale Ramp</a></li>
+          <li><a class="tab-dd-item" data-tab="type" data-target="type-weight">Weight Ramp</a></li>
+          <li><a class="tab-dd-item" data-tab="type" data-target="type-family">Family Comparison</a></li>
+          <li><a class="tab-dd-item" data-tab="type" data-target="type-style">Style Variations</a></li>
+          <li><a class="tab-dd-item" data-tab="type" data-target="type-leading">Line Height</a></li>
+        </ul>
+      </div>
+
+      <div class="tab-dd">
+        <button class="tab-btn" role="tab" aria-selected="false" data-tab="borders">Lines &amp; Borders<span class="tab-chev" aria-hidden="true">▾</span></button>
+        <ul class="tab-dd-menu" aria-label="Lines & Borders sections">
+          <li><a class="tab-dd-item" data-tab="borders" data-target="panel-borders">All Lines &amp; Borders</a></li>
+          <li><a class="tab-dd-item" data-tab="borders" data-target="lines-border">Border Position</a></li>
+          <li><a class="tab-dd-item" data-tab="borders" data-target="lines-card">Card Treatments</a></li>
+          <li><a class="tab-dd-item" data-tab="borders" data-target="lines-divider">Divider Styles</a></li>
+          <li><a class="tab-dd-item" data-tab="borders" data-target="lines-shadow">Shadow Scale</a></li>
+        </ul>
+      </div>
+
+      <div class="tab-dd">
+        <button class="tab-btn" role="tab" aria-selected="false" data-tab="color">Color<span class="tab-chev" aria-hidden="true">▾</span></button>
+        <ul class="tab-dd-menu" aria-label="Color sections">
+          <li><a class="tab-dd-item" data-tab="color" data-target="panel-color">All Color</a></li>
+          <li><a class="tab-dd-item" data-tab="color" data-target="color-badges">Semantic Badges</a></li>
+          <li><a class="tab-dd-item" data-tab="color" data-target="color-legibility">Text on Color</a></li>
+          <li><a class="tab-dd-item" data-tab="color" data-target="color-alpha">Alpha &amp; Opacity</a></li>
+          <li><a class="tab-dd-item" data-tab="color" data-target="color-scale">Color Scale</a></li>
+          <li><a class="tab-dd-item" data-tab="color" data-target="color-palettes">20 Palettes</a></li>
+        </ul>
+      </div>
+
+      <div class="tab-dd">
+        <button class="tab-btn" role="tab" aria-selected="false" data-tab="spacing">Spacing<span class="tab-chev" aria-hidden="true">▾</span></button>
+        <ul class="tab-dd-menu" aria-label="Spacing sections">
+          <li><a class="tab-dd-item" data-tab="spacing" data-target="panel-spacing">All Spacing</a></li>
+          <li><a class="tab-dd-item" data-tab="spacing" data-target="spacing-density">Density Spectrum</a></li>
+          <li><a class="tab-dd-item" data-tab="spacing" data-target="spacing-gap">Gap Scale</a></li>
+          <li><a class="tab-dd-item" data-tab="spacing" data-target="spacing-whitespace">Whitespace as Signal</a></li>
+        </ul>
+      </div>
+
+      <div class="tab-dd">
+        <button class="tab-btn" role="tab" aria-selected="false" data-tab="inputs">Inputs<span class="tab-chev" aria-hidden="true">▾</span></button>
+        <ul class="tab-dd-menu" aria-label="Inputs sections">
+          <li><a class="tab-dd-item" data-tab="inputs" data-target="panel-inputs">All Inputs</a></li>
+          <li><a class="tab-dd-item" data-tab="inputs" data-target="inputs-styles">Input Style Variants</a></li>
+          <li><a class="tab-dd-item" data-tab="inputs" data-target="inputs-affixes">Affixes</a></li>
+          <li><a class="tab-dd-item" data-tab="inputs" data-target="inputs-float">Floating Label</a></li>
+          <li><a class="tab-dd-item" data-tab="inputs" data-target="inputs-size">Size Variants</a></li>
+          <li><a class="tab-dd-item" data-tab="inputs" data-target="inputs-helper">Helper Text</a></li>
+          <li><a class="tab-dd-item" data-tab="inputs" data-target="inputs-grouped">Grouped Inputs</a></li>
+        </ul>
+      </div>
+
+    </div>
+  </nav>
+
+  <main class="main">
+
+    <!-- ══════════════════════════════════════════════════════════
+         BUTTONS
+    ══════════════════════════════════════════════════════════ -->
+    <div id="panel-buttons" class="tab-panel active" role="tabpanel">
+      <ul class="term-list">
+
+        <li class="term-row">
+          <div class="term-demo">
+            <button class="btn btn-primary"><span class="lbl">Confirm order</span></button>
+          </div>
+          <div class="term-info">
+            <p class="term-tag">Hierarchy</p>
+            <h2 class="term-name">Primary Button</h2>
+            <p class="term-desc">The single most important action on a screen. Use once per view to anchor user intent and drive conversion. Filled, high contrast. Hover here reveals the gold slide-in animation.</p>
+          </div>
+        </li>
+
+        <li class="term-row">
+          <div class="term-demo">
+            <button class="btn btn-secondary">Cancel</button>
+          </div>
+          <div class="term-info">
+            <p class="term-tag">Hierarchy</p>
+            <h2 class="term-name">Secondary Button</h2>
+            <p class="term-desc">Supports the primary action without competing with it. Used for alternate paths in dialogs and forms where two choices exist side by side.</p>
+          </div>
+        </li>
+
+        <li class="term-row">
+          <div class="term-demo">
+            <button class="btn btn-ghost">Learn more</button>
+          </div>
+          <div class="term-info">
+            <p class="term-tag">Hierarchy</p>
+            <h2 class="term-name">Ghost / Text Button</h2>
+            <p class="term-desc">Lowest visual weight   no background, no border. For tertiary actions and inline links, or in dense lists where full buttons would create visual clutter.</p>
+          </div>
+        </li>
+
+        <li class="term-row">
+          <div class="term-demo">
+            <button class="btn btn-destructive">Delete account</button>
+          </div>
+          <div class="term-info">
+            <p class="term-tag">Semantics</p>
+            <h2 class="term-name">Destructive Button</h2>
+            <p class="term-desc">Signals irreversible or high-risk actions. The distinct color primes users to pause and read carefully. Always follow with a confirmation step for permanent operations.</p>
+          </div>
+        </li>
+
+        <li class="term-row">
+          <div class="term-demo">
+            <button class="btn btn-disabled" disabled aria-disabled="true">Submit</button>
+          </div>
+          <div class="term-info">
+            <p class="term-tag">State</p>
+            <h2 class="term-name">Disabled Button</h2>
+            <p class="term-desc">Indicates the action is currently unavailable. Reduces opacity rather than hiding   preserving affordance and spatial layout. Always explain why the action is unavailable when possible.</p>
+          </div>
+        </li>
+
+        <li class="term-row">
+          <div class="term-demo">
+            <div class="btn-size-demo">
+              <button class="btn btn-primary btn-sm"><span class="lbl">Small</span></button>
+              <button class="btn btn-primary"><span class="lbl">Medium</span></button>
+              <button class="btn btn-primary btn-lg"><span class="lbl">Large</span></button>
+            </div>
+          </div>
+          <div class="term-info">
+            <p class="term-tag">Scale</p>
+            <h2 class="term-name">Small / Medium / Large</h2>
+            <p class="term-desc">Size communicates context and importance. Small (36px) for toolbars and dense UIs; medium (48px) for standard forms; large (56px) for hero CTAs and marketing pages where emphasis demands space.</p>
+          </div>
+        </li>
+
+        <li class="term-row">
+          <div class="term-demo">
+            <button class="btn btn-pill"><span class="lbl">Follow</span></button>
+          </div>
+          <div class="term-info">
+            <p class="term-tag">Shape</p>
+            <h2 class="term-name">Pill Shape</h2>
+            <p class="term-desc">Fully rounded ends (border-radius: 9999px) create a softer, friendlier tone. Common in social actions, filter chips, and tags   typically contrasting with a square-corner design system.</p>
+          </div>
+        </li>
+
+        <li class="term-row">
+          <div class="term-demo">
+            <button class="btn btn-icon" aria-label="Search">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+              </svg>
+            </button>
+          </div>
+          <div class="term-info">
+            <p class="term-tag">Pattern</p>
+            <h2 class="term-name">Icon Button</h2>
+            <p class="term-desc">Square button containing only an icon. Requires an aria-label   no icon is self-explanatory to every user. Used in toolbars and compact UIs where text labels would crowd the layout.</p>
+          </div>
+        </li>
+
+        <li class="term-row">
+          <div class="term-demo">
+            <button class="btn btn-block"><span class="lbl">Continue to checkout</span></button>
+          </div>
+          <div class="term-info">
+            <p class="term-tag">Layout</p>
+            <h2 class="term-name">Full-Width / Block Button</h2>
+            <p class="term-desc">Stretches to fill its container (width: 100%). Essential for mobile checkout flows and single-column forms where generous touch targets and dominant CTAs are required.</p>
+          </div>
+        </li>
+
+      </ul>
+
+      <!-- BUTTONS SHOWCASE -->
+      <div class="showcase">
+        <div class="showcase-header"><span class="showcase-eyebrow">Visual Reference</span></div>
+
+        <div class="showcase-section">
+          <p class="showcase-section-title" id="btn-shape">Shape &amp; Radius</p>
+          <div class="sc-grid">
+            <div class="sc-item">
+              <div class="sc-demo"><button class="btn btn-primary" style="border-radius:0"><span class="lbl">Action</span></button></div>
+              <p class="sc-label">Sharp — 0px</p>
+              <p class="sc-desc">Architectural, precise. Use for editorial or high-end product systems where rigidity signals quality.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><button class="btn btn-primary btn-r4"><span class="lbl">Action</span></button></div>
+              <p class="sc-label">Subtle — 4px</p>
+              <p class="sc-desc">Neutral and professional. The invisible radius. Barely softens corners without committing to a personality.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><button class="btn btn-primary btn-r8"><span class="lbl">Action</span></button></div>
+              <p class="sc-label">Rounded — 8px</p>
+              <p class="sc-desc">Approachable and modern. The standard radius in most design systems today. Friendly without being playful.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><button class="btn btn-primary btn-r12"><span class="lbl">Action</span></button></div>
+              <p class="sc-label">Generous — 12px</p>
+              <p class="sc-desc">Warm and inviting. Consumer apps, onboarding flows, and social platforms. Signals accessibility and ease.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><button class="btn btn-pill"><span class="lbl">Action</span></button></div>
+              <p class="sc-label">Pill — 9999px</p>
+              <p class="sc-desc">Fully rounded ends. Breaks out of the grid. Used for tags, chips, social follow buttons, and filter controls.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="showcase-section">
+          <p class="showcase-section-title" id="btn-fill">Fill &amp; Weight</p>
+          <div class="sc-grid">
+            <div class="sc-item">
+              <div class="sc-demo"><button class="btn btn-primary"><span class="lbl">Filled</span></button></div>
+              <p class="sc-label">Filled — dark</p>
+              <p class="sc-desc">Maximum weight. High contrast, high visibility. The only fill style that works as a true primary CTA.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><button class="btn-accent">Filled</button></div>
+              <p class="sc-label">Filled — accent</p>
+              <p class="sc-desc">Brand-forward. Uses accent color as the background. Useful when the primary is overused or the brand color carries meaning.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><button class="btn btn-secondary">Outlined</button></div>
+              <p class="sc-label">Outlined</p>
+              <p class="sc-desc">Medium weight. Transparent fill with a full border. Secondary or alternate actions that need visual presence without dominance.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><button class="btn-outlined-only">Outlined</button></div>
+              <p class="sc-label">Outlined — accent</p>
+              <p class="sc-desc">Accent-bordered. Draws the eye without filling space. Works well for upgrade or conversion moments inside neutral UI.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><button class="btn btn-ghost">Ghost</button></div>
+              <p class="sc-label">Ghost / Text</p>
+              <p class="sc-desc">Lowest visual weight. No border, no background. For repetitive or tertiary actions in dense interfaces.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="showcase-section">
+          <p class="showcase-section-title" id="btn-size">Size Scale</p>
+          <div class="sc-grid">
+            <div class="sc-item">
+              <div class="sc-demo"><button class="btn btn-primary btn-micro"><span class="lbl">Micro</span></button></div>
+              <p class="sc-label">Micro — 28px</p>
+              <p class="sc-desc">Tiny inline actions inside tables, badges, and data rows. Use sparingly and never as a primary CTA.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><button class="btn btn-primary btn-sm"><span class="lbl">Small</span></button></div>
+              <p class="sc-label">Small — 36px</p>
+              <p class="sc-desc">Toolbars, filters, and compact card footers. Below the 44px touch target ideal but acceptable in mouse-primary contexts.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><button class="btn btn-primary"><span class="lbl">Medium</span></button></div>
+              <p class="sc-label">Medium — 48px</p>
+              <p class="sc-desc">The system default. Hits the 48px touch target minimum. Works universally across desktop, tablet, and mobile.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><button class="btn btn-primary btn-lg"><span class="lbl">Large</span></button></div>
+              <p class="sc-label">Large — 56px</p>
+              <p class="sc-desc">Feature sections and prominent forms. Signals that this action is important and invites deliberate engagement.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><button class="btn btn-primary btn-hero"><span class="lbl">Hero</span></button></div>
+              <p class="sc-label">Hero — 64px</p>
+              <p class="sc-desc">Marketing pages and above-the-fold moments. The largest button communicates the single most important action on the page.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="showcase-section">
+          <p class="showcase-section-title" id="btn-animations">Hover Animations</p>
+          <div class="sc-grid">
+            <div class="sc-item">
+              <div class="sc-demo"><button class="btn btn-primary"><span class="lbl">Hover me</span></button></div>
+              <p class="sc-label">Slide-in — left</p>
+              <p class="sc-desc">The gold fill translates in from the left on hover. Directional, cinematic. Feels like a reveal rather than a change.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><button class="btn-sweep"><span class="lbl">Hover me</span></button></div>
+              <p class="sc-label">Sweep — bottom up</p>
+              <p class="sc-desc">Fill rises from the bottom edge. Creates a lifting motion that draws the eye upward, reinforcing forward action.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><button class="btn-wipe-right"><span class="lbl">Hover me</span></button></div>
+              <p class="sc-label">Wipe — right</p>
+              <p class="sc-desc">Fill expands from the right side. Reading-direction aware. Feels like the next step is just past the button.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><button class="btn-lift">Hover me</button></div>
+              <p class="sc-label">Shadow lift</p>
+              <p class="sc-desc">The button rises off the page via translateY + shadow deepening. Creates a tactile, pressable feel without 3D borders.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><button class="btn-glow">Hover me</button></div>
+              <p class="sc-label">Glow ring</p>
+              <p class="sc-desc">A gold outline ring appears at a distance from the button. Creates an aura effect. Use for moments that need brand warmth.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><button class="btn-scale-grow">Hover me</button></div>
+              <p class="sc-label">Scale grow</p>
+              <p class="sc-desc">Subtle scale increase (1.05x) with shadow deepening. Feels responsive and springy. Common in more playful product interfaces.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><button class="btn-border-gold">Hover me</button></div>
+              <p class="sc-label">Border to gold</p>
+              <p class="sc-desc">Faint border animates to accent color. Text shifts to match. Minimal, elegant. Works for secondary actions that shouldn't shout.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><button class="btn-underline">Hover me</button></div>
+              <p class="sc-label">Underline reveal</p>
+              <p class="sc-desc">A gold underline expands outward from center. For text-only actions that want just enough hover feedback to feel intentional.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="showcase-section">
+          <p class="showcase-section-title" id="btn-icons">Icon Placement</p>
+          <div class="sc-grid">
+            <div class="sc-item">
+              <div class="sc-demo">
+                <button class="btn btn-primary">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                  <span class="lbl">Continue</span>
+                </button>
+              </div>
+              <p class="sc-label">Icon left</p>
+              <p class="sc-desc">Icon precedes the label. Reinforces meaning before the word. Good for directional or action-type verbs.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo">
+                <button class="btn btn-primary">
+                  <span class="lbl">Download</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                </button>
+              </div>
+              <p class="sc-label">Icon right</p>
+              <p class="sc-desc">Icon follows the label. The word lands first, then the icon adds meaning. Use for result-type actions like download or export.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo">
+                <button class="btn btn-icon" aria-label="Search">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                </button>
+              </div>
+              <p class="sc-label">Icon only — square</p>
+              <p class="sc-desc">No label. Requires aria-label. Square shape fits toolbar grids. Hover state must be unambiguous.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo">
+                <button class="btn-icon-circle" aria-label="Add item">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+                </button>
+              </div>
+              <p class="sc-label">Icon only — circle</p>
+              <p class="sc-desc">Circular shape draws more attention than square. FAB (floating action button) patterns use this to anchor primary creation actions.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo">
+                <button class="btn btn-secondary">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+                  <span>Add to list</span>
+                </button>
+              </div>
+              <p class="sc-label">Icon + outlined</p>
+              <p class="sc-desc">Icon reinforces an outlined secondary button. The lighter fill lets the icon carry proportionally more visual weight.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="showcase-section">
+          <p class="showcase-section-title" id="btn-states">States</p>
+          <div class="sc-grid">
+            <div class="sc-item">
+              <div class="sc-demo"><button class="btn btn-primary"><span class="lbl">Default</span></button></div>
+              <p class="sc-label">Default</p>
+              <p class="sc-desc">The resting state. Full opacity, normal shadow. This is the baseline every other state is evaluated against.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo">
+                <button class="btn-loading-state">
+                  <span class="spinner"></span>
+                  <span>Loading</span>
+                </button>
+              </div>
+              <p class="sc-label">Loading</p>
+              <p class="sc-desc">Spinner replaces or precedes label. Reduced opacity and pointer-events: none prevent double-submission. The spinner is the feedback.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo">
+                <button class="btn-success-state">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+                  <span>Saved</span>
+                </button>
+              </div>
+              <p class="sc-label">Success</p>
+              <p class="sc-desc">Green background with checkmark confirms completion. Transient state — revert to default after 2 seconds or on next interaction.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><button class="btn btn-disabled" disabled>Disabled</button></div>
+              <p class="sc-label">Disabled</p>
+              <p class="sc-desc">30% opacity, no pointer events. The button shape remains in the layout — don't hide it. Ideally explain why it's disabled near it.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><button class="btn btn-destructive">Delete</button></div>
+              <p class="sc-label">Destructive</p>
+              <p class="sc-desc">Red signals danger. Never use red for anything other than irreversible or high-risk actions or users will ignore the signal entirely.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- ══════════════════════════════════════════════════════════
+         TYPOGRAPHY
+    ══════════════════════════════════════════════════════════ -->
+    <div id="panel-type" class="tab-panel" role="tabpanel">
+      <ul class="term-list">
+
+        <li class="term-row">
+          <div class="term-demo">
+            <p class="t-display">The Art<br><em style="color:var(--accent);">of Letters</em></p>
+          </div>
+          <div class="term-info">
+            <p class="term-tag">Scale</p>
+            <h2 class="term-name">Display / Hero</h2>
+            <p class="term-desc">The largest typographic statement (48–96px+). Tight line-height (0.9–1.0) is critical   creates drama and compression. Used only for hero sections and editorial spreads, never for body content.</p>
+          </div>
+        </li>
+
+        <li class="term-row">
+          <div class="term-demo">
+            <h1 class="t-h1">Page Title</h1>
+          </div>
+          <div class="term-info">
+            <p class="term-tag">Scale</p>
+            <h2 class="term-name">Heading 1 (H1)</h2>
+            <p class="term-desc">Primary page or section title. One per page in most cases. Sets the semantic document hierarchy and is the first landmark screen readers announce on page load.</p>
+          </div>
+        </li>
+
+        <li class="term-row">
+          <div class="term-demo">
+            <h2 class="t-h2">Section Heading</h2>
+          </div>
+          <div class="term-info">
+            <p class="term-tag">Scale</p>
+            <h2 class="term-name">Heading 2 (H2)</h2>
+            <p class="term-desc">Major section breaks within a page. Establishes the second tier of hierarchy   used for feature groups, content modules, and topic clusters. Visually subordinate to H1 but still commands attention.</p>
+          </div>
+        </li>
+
+        <li class="term-row">
+          <div class="term-demo">
+            <h3 class="t-h3">Subsection Title</h3>
+          </div>
+          <div class="term-info">
+            <p class="term-tag">Scale</p>
+            <h2 class="term-name">Heading 3 (H3)</h2>
+            <p class="term-desc">Third-level grouping for card titles, sidebar heads, and nested content. Often in medium-weight sans-serif to visually differentiate from the serif H1/H2 above it.</p>
+          </div>
+        </li>
+
+        <li class="term-row">
+          <div class="term-demo">
+            <p class="t-body">The best typography is invisible   it serves the content without drawing attention to itself. Comfortable line-height and generous measure make long passages easy to read without fatigue.</p>
+          </div>
+          <div class="term-info">
+            <p class="term-tag">Scale</p>
+            <h2 class="term-name">Body Text</h2>
+            <p class="term-desc">The workhorse of UI text (15–18px). Optimized for sustained reading with generous line-height (1.5–1.7) and measure of 60–75 characters per line. Never go below 14px for paragraphs.</p>
+          </div>
+        </li>
+
+        <li class="term-row">
+          <div class="term-demo">
+            <p class="t-caption">Editorial   Vol. 01   March 2026</p>
+          </div>
+          <div class="term-info">
+            <p class="term-tag">Scale</p>
+            <h2 class="term-name">Caption / Label</h2>
+            <p class="term-desc">Smallest intentional type size (10–12px). Uppercase with wide tracking (0.2–0.3em) for overlines and UI labels; sentence case for image captions and form hints. Never use for primary information.</p>
+          </div>
+        </li>
+
+        <li class="term-row">
+          <div class="term-demo">
+            <div class="t-weight-stack">
+              <span style="font-weight:400">Regular 400   The quick brown fox</span>
+              <span style="font-weight:500">Medium 500   The quick brown fox</span>
+              <span style="font-weight:700">Bold 700   The quick brown fox</span>
+            </div>
+          </div>
+          <div class="term-info">
+            <p class="term-tag">Weight</p>
+            <h2 class="term-name">Font Weight (400 / 500 / 700)</h2>
+            <p class="term-desc">Weight creates emphasis within the same typeface. Use a maximum of three weights per design. Reserve bold exclusively for the most critical words   overuse flattens the hierarchy and loses impact.</p>
+          </div>
+        </li>
+
+        <li class="term-row">
+          <div class="term-demo">
+            <div class="t-family-stack">
+              <span style="font-family:var(--serif)">Playfair Display   Serif</span>
+              <span style="font-family:var(--sans)">Inter   Sans-serif</span>
+              <span style="font-family:var(--mono);font-size:1rem">JetBrains Mono   Monospace</span>
+            </div>
+          </div>
+          <div class="term-info">
+            <p class="term-tag">Family</p>
+            <h2 class="term-name">Font Family (Serif / Sans / Mono)</h2>
+            <p class="term-desc">Pairing a high-contrast serif (editorial, expressive) with a humanist sans (legible, neutral) creates visual depth. Monospace is reserved for code, data, and technical strings where character distinction matters.</p>
+          </div>
+        </li>
+
+        <li class="term-row">
+          <div class="term-demo">
+            <div class="t-lh-demo">
+              <div class="swatch" style="line-height:1.2">
+                <strong style="font-size:0.5625rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted-fg);display:block;margin-bottom:0.25rem">Tight   1.2</strong>
+                This text has cramped vertical space. Reading becomes tiring over longer passages.
+              </div>
+              <div class="swatch" style="line-height:1.7">
+                <strong style="font-size:0.5625rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted-fg);display:block;margin-bottom:0.25rem">Relaxed   1.7</strong>
+                This text breathes. The eye moves naturally from line to line without effort.
+              </div>
+            </div>
+          </div>
+          <div class="term-info">
+            <p class="term-tag">Rhythm</p>
+            <h2 class="term-name">Line Height</h2>
+            <p class="term-desc">Vertical space between baselines. Body text needs 1.5–1.7 for readability; headlines use 0.9–1.1 for drama. Unitless values (e.g. 1.625) scale automatically with font size   always prefer over fixed px values.</p>
+          </div>
+        </li>
+
+        <li class="term-row">
+          <div class="term-demo">
+            <div class="t-tracking-demo">
+              <span style="letter-spacing:-0.02em">−0.02em   Tight   Display headlines only</span>
+              <span style="letter-spacing:0em">0em   Default   Body and UI text</span>
+              <span style="letter-spacing:0.1em;text-transform:uppercase">0.1em   Wide   Subheadings</span>
+              <span style="letter-spacing:0.28em;text-transform:uppercase;font-size:0.625rem;color:var(--muted-fg)">0.28em   Ultra   Labels &amp; overlines</span>
+            </div>
+          </div>
+          <div class="term-info">
+            <p class="term-tag">Rhythm</p>
+            <h2 class="term-name">Letter Spacing / Tracking</h2>
+            <p class="term-desc">Tight tracking on large headlines adds compression and drama. Wide tracking on small uppercase labels increases legibility at small sizes and conveys refinement. Never adjust tracking on lowercase body text.</p>
+          </div>
+        </li>
+
+      </ul>
+
+      <!-- TYPOGRAPHY SHOWCASE -->
+      <div class="showcase">
+        <div class="showcase-header"><span class="showcase-eyebrow">Visual Reference</span></div>
+
+        <div class="showcase-section">
+          <p class="showcase-section-title" id="type-scale">Type Scale Ramp</p>
+          <div class="sc-grid sc-wide">
+            <div class="sc-item">
+              <div class="sc-demo sc-demo-tall" style="align-items:flex-end;justify-content:flex-start">
+                <p style="font-family:var(--serif);font-size:clamp(2rem,5vw,3.25rem);font-weight:400;line-height:0.95;letter-spacing:-0.015em">Aa</p>
+              </div>
+              <p class="sc-label">Display</p>
+              <p class="sc-desc">48–96px+. Tight leading (0.9–1.0). Hero sections and editorial spreads only.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo sc-demo-tall" style="align-items:flex-end;justify-content:flex-start">
+                <p style="font-family:var(--serif);font-size:clamp(1.75rem,3.5vw,2.5rem);font-weight:400;line-height:1.05">Aa</p>
+              </div>
+              <p class="sc-label">Heading 1</p>
+              <p class="sc-desc">28–40px. One per page. The primary semantic and visual anchor of the document.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo sc-demo-tall" style="align-items:flex-end;justify-content:flex-start">
+                <p style="font-family:var(--serif);font-size:clamp(1.25rem,2.5vw,1.75rem);font-weight:400;line-height:1.2">Aa</p>
+              </div>
+              <p class="sc-label">Heading 2</p>
+              <p class="sc-desc">20–28px. Section breaks. Multiple per page. Commands attention below H1.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo sc-demo-tall" style="align-items:flex-end;justify-content:flex-start">
+                <p style="font-family:var(--serif);font-size:1.125rem;font-weight:500;line-height:1.3">Aa</p>
+              </div>
+              <p class="sc-label">Heading 3</p>
+              <p class="sc-desc">18px. Card titles, sidebar heads. Medium weight without the size jump.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo sc-demo-tall" style="align-items:flex-end;justify-content:flex-start">
+                <p style="font-family:var(--sans);font-size:1rem;line-height:1.7">The quick<br>brown fox</p>
+              </div>
+              <p class="sc-label">Body</p>
+              <p class="sc-desc">15–18px. Relaxed leading (1.6–1.7). The workhorse. Optimized for sustained reading.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo sc-demo-tall" style="align-items:flex-end;justify-content:flex-start">
+                <p style="font-size:0.625rem;letter-spacing:0.28em;text-transform:uppercase;color:var(--muted-fg)">Label text</p>
+              </div>
+              <p class="sc-label">Caption / Label</p>
+              <p class="sc-desc">10–12px. Wide tracking, uppercase. Metadata, overlines, form hints. Never primary content.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="showcase-section">
+          <p class="showcase-section-title" id="type-weight">Weight Ramp</p>
+          <div class="sc-grid">
+            <div class="sc-item">
+              <div class="sc-demo"><p style="font-family:var(--sans);font-size:1.5rem;font-weight:300;color:var(--fg)">Light</p></div>
+              <p class="sc-label">300 — Light</p>
+              <p class="sc-desc">Airy and refined. For display text on white backgrounds. Fragile at small sizes.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><p style="font-family:var(--sans);font-size:1.5rem;font-weight:400;color:var(--fg)">Regular</p></div>
+              <p class="sc-label">400 — Regular</p>
+              <p class="sc-desc">The default. All body text. Never heavier or lighter unless emphasis is specifically needed.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><p style="font-family:var(--sans);font-size:1.5rem;font-weight:500;color:var(--fg)">Medium</p></div>
+              <p class="sc-label">500 — Medium</p>
+              <p class="sc-desc">Subtle emphasis. UI labels, navigation, buttons. Heavier than body without being bold.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><p style="font-family:var(--sans);font-size:1.5rem;font-weight:600;color:var(--fg)">Semibold</p></div>
+              <p class="sc-label">600 — Semibold</p>
+              <p class="sc-desc">Strong emphasis. Card titles, important data, highlighted terms. One step below bold.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><p style="font-family:var(--sans);font-size:1.5rem;font-weight:700;color:var(--fg)">Bold</p></div>
+              <p class="sc-label">700 — Bold</p>
+              <p class="sc-desc">Maximum emphasis within a weight scale. Use sparingly — if everything is bold, nothing is bold.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="showcase-section">
+          <p class="showcase-section-title" id="type-family">Family Comparison — Same Sentence</p>
+          <div class="sc-grid sc-wide">
+            <div class="sc-item">
+              <div class="sc-demo sc-demo-tall sc-demo-left">
+                <p style="font-family:var(--serif);font-size:1.125rem;line-height:1.5">The details are not the details. They make the design.</p>
+              </div>
+              <p class="sc-label">Serif — Playfair Display</p>
+              <p class="sc-desc">Editorial authority. High contrast strokes add warmth and sophistication. Best at display sizes.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo sc-demo-tall sc-demo-left">
+                <p style="font-family:var(--sans);font-size:1.125rem;line-height:1.5">The details are not the details. They make the design.</p>
+              </div>
+              <p class="sc-label">Sans-serif — Inter</p>
+              <p class="sc-desc">Neutral and legible. No personality competes with the content. The safe default for body and UI.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo sc-demo-tall sc-demo-left">
+                <p style="font-family:var(--mono);font-size:1rem;line-height:1.5">The details are not the details. They make the design.</p>
+              </div>
+              <p class="sc-label">Monospace — JetBrains Mono</p>
+              <p class="sc-desc">Every character the same width. Clinical precision. Reserved for code, data, and technical labels.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="showcase-section">
+          <p class="showcase-section-title" id="type-style">Style Variations</p>
+          <div class="sc-grid">
+            <div class="sc-item">
+              <div class="sc-demo"><p style="font-family:var(--serif);font-size:1.5rem;font-weight:400">Serif regular</p></div>
+              <p class="sc-label">Serif — Regular</p>
+              <p class="sc-desc">Classic editorial weight. Neutral authority.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><p style="font-family:var(--serif);font-size:1.5rem;font-weight:400;font-style:italic;color:var(--accent)">Serif italic</p></div>
+              <p class="sc-label">Serif — Italic accent</p>
+              <p class="sc-desc">Italic in accent color. Spoken cadence. Use for a single key word inside a headline.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><p style="font-family:var(--serif);font-size:1.5rem;font-weight:500">Serif medium</p></div>
+              <p class="sc-label">Serif — Medium</p>
+              <p class="sc-desc">More presence without bold contrast. Subheadings and featured quotes.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><p style="font-family:var(--sans);font-size:0.625rem;letter-spacing:0.28em;text-transform:uppercase;color:var(--muted-fg)">Section label</p></div>
+              <p class="sc-label">Sans — All caps + tracking</p>
+              <p class="sc-desc">Ultra-wide tracking (0.28em) on uppercase text. The signature of refined UI label design.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo">
+                <p style="font-family:var(--serif);font-size:1.125rem;line-height:1.5">A great design is one that <em style="font-style:italic;color:var(--accent)">feels inevitable</em> in hindsight.</p>
+              </div>
+              <p class="sc-label">Mixed emphasis</p>
+              <p class="sc-desc">Italic + accent color within a sentence. Simulates spoken emphasis. One phrase maximum per headline.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo sc-demo-left">
+                <p style="font-family:var(--serif);float:left;font-size:4rem;line-height:0.85;margin-right:0.3rem;font-weight:400;color:var(--fg)">T</p>
+                <p style="font-family:var(--sans);font-size:0.875rem;line-height:1.625;color:var(--fg);overflow:hidden">he first letter of a paragraph enlarged and set in a display typeface. A classic typographic ornament.</p>
+              </div>
+              <p class="sc-label">Drop cap</p>
+              <p class="sc-desc">Enlarged initial letter floated left. Editorial punctuation that marks the start of a key passage.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="showcase-section">
+          <p class="showcase-section-title" id="type-leading">Line Height Comparison — Same Text, Different Leading</p>
+          <div class="sc-grid sc-wide">
+            <div class="sc-item">
+              <div class="sc-demo sc-demo-left sc-demo-tall">
+                <p style="font-size:0.875rem;line-height:1.0;color:var(--fg);max-width:22ch">Good design is as little design as possible. Less but better.</p>
+              </div>
+              <p class="sc-label">1.0 — Tight</p>
+              <p class="sc-desc">Lines almost touch. Use only for display text where compression is intentional. Unreadable at body sizes.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo sc-demo-left sc-demo-tall">
+                <p style="font-size:0.875rem;line-height:1.3;color:var(--fg);max-width:22ch">Good design is as little design as possible. Less but better.</p>
+              </div>
+              <p class="sc-label">1.3 — Compact</p>
+              <p class="sc-desc">Acceptable for captions and UI text. Cramped for sustained reading but tolerable at small sizes.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo sc-demo-left sc-demo-tall">
+                <p style="font-size:0.875rem;line-height:1.625;color:var(--fg);max-width:22ch">Good design is as little design as possible. Less but better.</p>
+              </div>
+              <p class="sc-label">1.625 — Relaxed</p>
+              <p class="sc-desc">The sweet spot for body text. The eye finds the next line effortlessly. Use as your body default.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo sc-demo-left sc-demo-tall">
+                <p style="font-size:0.875rem;line-height:2.0;color:var(--fg);max-width:22ch">Good design is as little design as possible. Less but better.</p>
+              </div>
+              <p class="sc-label">2.0 — Airy</p>
+              <p class="sc-desc">Generous breathing room. Signals premium or editorial spacing. Can feel disconnected if overused on dense content.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- ══════════════════════════════════════════════════════════
+         LINES & BORDERS
+    ══════════════════════════════════════════════════════════ -->
+    <div id="panel-borders" class="tab-panel" role="tabpanel">
+      <ul class="term-list">
+
+        <li class="term-row">
+          <div class="term-demo">
+            <div class="stroke-stack">
+              <div class="stroke-row">
+                <div class="stroke-line" style="height:0.5px"></div>
+                <span class="stroke-label">0.5px   hairline</span>
+              </div>
+              <div class="stroke-row">
+                <div class="stroke-line" style="height:1px"></div>
+                <span class="stroke-label">1px   standard</span>
+              </div>
+              <div class="stroke-row">
+                <div class="stroke-line" style="height:2px"></div>
+                <span class="stroke-label">2px   medium</span>
+              </div>
+              <div class="stroke-row">
+                <div class="stroke-line" style="height:4px"></div>
+                <span class="stroke-label">4px   heavy</span>
+              </div>
+              <div class="stroke-row">
+                <div class="stroke-line" style="height:8px"></div>
+                <span class="stroke-label">8px   accent rule</span>
+              </div>
+            </div>
+          </div>
+          <div class="term-info">
+            <p class="term-tag">Weight</p>
+            <h2 class="term-name">Stroke Weights</h2>
+            <p class="term-desc">Line weight carries semantic meaning. Hairlines (0.5px) for subtle dividers; 1px for standard UI containers; 2px for active or focused states; 4px+ for decorative accents and featured callouts.</p>
+          </div>
+        </li>
+
+        <li class="term-row">
+          <div class="term-demo">
+            <div class="bstyle-stack">
+              <div class="bstyle-row">
+                <div class="bstyle-line" style="border-top:2px solid var(--fg)"></div>
+                <span class="stroke-label">Solid</span>
+              </div>
+              <div class="bstyle-row">
+                <div class="bstyle-line" style="border-top:2px dashed var(--fg)"></div>
+                <span class="stroke-label">Dashed</span>
+              </div>
+              <div class="bstyle-row">
+                <div class="bstyle-line" style="border-top:2px dotted var(--fg)"></div>
+                <span class="stroke-label">Dotted</span>
+              </div>
+            </div>
+          </div>
+          <div class="term-info">
+            <p class="term-tag">Style</p>
+            <h2 class="term-name">Border Styles (Solid / Dashed / Dotted)</h2>
+            <p class="term-desc">Solid is the UI default   reliable and neutral. Dashed signals editable or droppable zones. Dotted suggests optional or placeholder boundaries. Each style communicates a distinct interaction affordance.</p>
+          </div>
+        </li>
+
+        <li class="term-row">
+          <div class="term-demo">
+            <div class="radius-row">
+              <div class="radius-item">
+                <div class="radius-swatch" style="border-radius:0"></div>
+                <span class="radius-lbl">0px</span>
+              </div>
+              <div class="radius-item">
+                <div class="radius-swatch" style="border-radius:4px"></div>
+                <span class="radius-lbl">4px</span>
+              </div>
+              <div class="radius-item">
+                <div class="radius-swatch" style="border-radius:12px"></div>
+                <span class="radius-lbl">12px</span>
+              </div>
+              <div class="radius-item">
+                <div class="radius-swatch" style="border-radius:9999px"></div>
+                <span class="radius-lbl">Pill</span>
+              </div>
+            </div>
+          </div>
+          <div class="term-info">
+            <p class="term-tag">Shape</p>
+            <h2 class="term-name">Border Radius Scale</h2>
+            <p class="term-desc">Radius encodes brand personality. Sharp (0px) feels architectural and editorial; slight (4px) is neutral; generous (12px+) is approachable; pill creates tag-like shapes. Consistency is critical   mixing radii feels accidental.</p>
+          </div>
+        </li>
+
+      </ul>
+
+      <!-- LINES & BORDERS SHOWCASE -->
+      <div class="showcase">
+        <div class="showcase-header"><span class="showcase-eyebrow">Visual Reference</span></div>
+
+        <div class="showcase-section">
+          <p class="showcase-section-title" id="lines-border">Border Position</p>
+          <div class="sc-grid">
+            <div class="sc-item">
+              <div class="sc-demo"><div style="width:80px;height:56px;border-top:1px solid var(--fg)"></div></div>
+              <p class="sc-label">Top only</p>
+              <p class="sc-desc">Separates a section from what's above. The editorial standard — defines without boxing in.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><div style="width:80px;height:56px;border-bottom:1px solid var(--fg)"></div></div>
+              <p class="sc-label">Bottom only</p>
+              <p class="sc-desc">Table rows, list items, form fields. Underscores the content and creates a reading rail.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><div style="width:80px;height:56px;border-left:2px solid var(--accent)"></div></div>
+              <p class="sc-label">Left accent</p>
+              <p class="sc-desc">Strong left border in accent color. Signals a quote, callout, or active/selected state.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><div style="width:80px;height:56px;border:1px solid var(--fg)"></div></div>
+              <p class="sc-label">All sides</p>
+              <p class="sc-desc">Full box. Creates an enclosed container. Highest visual weight — use when isolation is the goal.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><div style="width:80px;height:56px;border-top:4px solid var(--accent)"></div></div>
+              <p class="sc-label">Top — heavy accent</p>
+              <p class="sc-desc">Thick top border in accent color. Featured card treatment. Communicates priority at a glance.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><div style="width:80px;height:56px"></div></div>
+              <p class="sc-label">No border</p>
+              <p class="sc-desc">Whitespace and color alone define the zone. Requires enough contrast or padding to be readable.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="showcase-section">
+          <p class="showcase-section-title" id="lines-card">Card Treatments</p>
+          <div class="sc-grid sc-wide">
+            <div class="sc-item">
+              <div class="sc-demo">
+                <div style="width:100%;border-top:1px solid var(--fg);padding:1rem 0 0;font-size:0.75rem;color:var(--muted-fg)">Card content goes here inside the component.</div>
+              </div>
+              <p class="sc-label">Top-border card</p>
+              <p class="sc-desc">Minimal. One line defines the component without boxing it in. Feels open and editorial.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo">
+                <div style="width:100%;border:1px solid var(--border);padding:1rem;font-size:0.75rem;color:var(--muted-fg)">Card content goes here inside the component.</div>
+              </div>
+              <p class="sc-label">Outlined card</p>
+              <p class="sc-desc">Full border, no shadow. Clean and precise. Common in dense dashboards and data-heavy UIs.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo">
+                <div style="width:100%;box-shadow:0 2px 8px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);padding:1rem;font-size:0.75rem;color:var(--muted-fg)">Card content goes here inside the component.</div>
+              </div>
+              <p class="sc-label">Shadow card</p>
+              <p class="sc-desc">No border, soft shadow. The card floats above the background. Feels material and interactive.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo">
+                <div style="width:100%;border-top:3px solid var(--accent);box-shadow:0 2px 8px rgba(0,0,0,0.06);padding:1rem;font-size:0.75rem;color:var(--muted-fg)">Card content goes here inside the component.</div>
+              </div>
+              <p class="sc-label">Featured card</p>
+              <p class="sc-desc">Thick accent top border + shadow. Signals a highlighted, promoted, or active item. Use once per group.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="showcase-section">
+          <p class="showcase-section-title" id="lines-divider">Divider Styles</p>
+          <div class="sc-grid">
+            <div class="sc-item">
+              <div class="sc-demo"><div style="width:100%;height:0;border-top:1px solid var(--border)"></div></div>
+              <p class="sc-label">Full-bleed — hairline</p>
+              <p class="sc-desc">Spans the full container. Lowest visual weight. Separates without interrupting.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><div style="width:100%;height:0;border-top:1px solid var(--fg)"></div></div>
+              <p class="sc-label">Full-bleed — solid</p>
+              <p class="sc-desc">Strong horizontal rule. Section-level separator. Used between major content blocks.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo">
+                <div style="display:flex;align-items:center;gap:0.75rem;width:100%">
+                  <div style="flex:1;height:0;border-top:1px solid var(--border)"></div>
+                  <span style="font-size:0.5rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted-fg);white-space:nowrap">or</span>
+                  <div style="flex:1;height:0;border-top:1px solid var(--border)"></div>
+                </div>
+              </div>
+              <p class="sc-label">With label</p>
+              <p class="sc-desc">Rule interrupted by a word or icon. Common in auth flows ("or continue with"). The label must be centered, never left-aligned.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><div style="width:3rem;height:0;border-top:2px solid var(--accent)"></div></div>
+              <p class="sc-label">Decorative short rule</p>
+              <p class="sc-desc">A short, weighted line in accent color. Used before section headings or hero copy as a typographic ornament.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo">
+                <div style="width:1px;height:56px;background:var(--border)"></div>
+              </div>
+              <p class="sc-label">Vertical divider</p>
+              <p class="sc-desc">Separates inline items like navigation links, stat columns, or action groups. Lighter weight than surrounding text.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="showcase-section">
+          <p class="showcase-section-title" id="lines-shadow">Shadow Scale</p>
+          <div class="sc-grid">
+            <div class="sc-item">
+              <div class="sc-demo"><div class="shadow-demo-box" style="box-shadow:none;border:1px solid var(--border)"></div></div>
+              <p class="sc-label">Flat — 0</p>
+              <p class="sc-desc">No elevation. The element is flush with the background. Use a border to define it instead.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><div class="shadow-demo-box" style="box-shadow:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04)"></div></div>
+              <p class="sc-label">XS — barely there</p>
+              <p class="sc-desc">Whisper of depth. Use on cards in dense grids to separate items without adding visual weight.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><div class="shadow-demo-box" style="box-shadow:0 2px 8px rgba(0,0,0,0.08),0 1px 3px rgba(0,0,0,0.06)"></div></div>
+              <p class="sc-label">SM — card default</p>
+              <p class="sc-desc">The standard card shadow. Present enough to feel elevated, subtle enough not to draw attention.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><div class="shadow-demo-box" style="box-shadow:0 4px 16px rgba(0,0,0,0.12),0 2px 6px rgba(0,0,0,0.08)"></div></div>
+              <p class="sc-label">MD — hover state</p>
+              <p class="sc-desc">Card hover or modal overlay. Clearly elevated. The step up from SM signals interactivity.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><div class="shadow-demo-box" style="box-shadow:0 12px 40px rgba(0,0,0,0.18),0 4px 12px rgba(0,0,0,0.1)"></div></div>
+              <p class="sc-label">LG — dialog/dropdown</p>
+              <p class="sc-desc">Dialogs, dropdowns, and popovers. Deep enough to float clearly above all page content.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- ══════════════════════════════════════════════════════════
+         COLOR
+    ══════════════════════════════════════════════════════════ -->
+    <div id="panel-color" class="tab-panel" role="tabpanel">
+      <ul class="term-list">
+
+        <li class="term-row">
+          <div class="term-demo">
+            <div class="color-roles">
+              <div class="color-chip-wrap">
+                <div class="color-chip" style="background:#1A1A1A"></div>
+                <span class="color-chip-name">Primary</span>
+              </div>
+              <div class="color-chip-wrap">
+                <div class="color-chip" style="background:#F9F8F6"></div>
+                <span class="color-chip-name">Surface</span>
+              </div>
+              <div class="color-chip-wrap">
+                <div class="color-chip" style="background:#3B7DD8"></div>
+                <span class="color-chip-name">Info</span>
+              </div>
+              <div class="color-chip-wrap">
+                <div class="color-chip" style="background:#2D7A4F"></div>
+                <span class="color-chip-name">Success</span>
+              </div>
+              <div class="color-chip-wrap">
+                <div class="color-chip" style="background:#C27C1A"></div>
+                <span class="color-chip-name">Warning</span>
+              </div>
+              <div class="color-chip-wrap">
+                <div class="color-chip" style="background:#8B2635"></div>
+                <span class="color-chip-name">Danger</span>
+              </div>
+            </div>
+          </div>
+          <div class="term-info">
+            <p class="term-tag">Semantics</p>
+            <h2 class="term-name">Color Roles</h2>
+            <p class="term-desc">Semantic color names decouple intent from specific hues. When the palette evolves, every role-based token updates in one place. "Danger" communicates meaning regardless of the exact hex value.</p>
+          </div>
+        </li>
+
+        <li class="term-row">
+          <div class="term-demo">
+            <div>
+              <div class="color-ramp">
+                <div class="ramp-step" style="background:#EEF4FF"></div>
+                <div class="ramp-step" style="background:#C7DCFF"></div>
+                <div class="ramp-step" style="background:#93BFFF"></div>
+                <div class="ramp-step" style="background:#5B9BF5"></div>
+                <div class="ramp-step" style="background:#3B7DD8"></div>
+                <div class="ramp-step" style="background:#2563B0"></div>
+                <div class="ramp-step" style="background:#1A4A8A"></div>
+                <div class="ramp-step" style="background:#0F3063"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;max-width:300px;margin-top:0.375rem">
+                <span style="font-size:0.5rem;color:var(--muted-fg);letter-spacing:0.1em;text-transform:uppercase">50</span>
+                <span style="font-size:0.5rem;color:var(--muted-fg);letter-spacing:0.1em;text-transform:uppercase">900</span>
+              </div>
+            </div>
+          </div>
+          <div class="term-info">
+            <p class="term-tag">Scale</p>
+            <h2 class="term-name">Color Scale / Ramp</h2>
+            <p class="term-desc">A sequential set of tints through shades (50–900) for a single hue. Provides consistent palette options for backgrounds, borders, text, hover, and active states   eliminating ad-hoc color decisions.</p>
+          </div>
+        </li>
+
+        <li class="term-row">
+          <div class="term-demo">
+            <div class="hue-stack">
+              <div class="hue-row">
+                <div class="hue-chip" style="background:#3B7DD8"></div>
+                <span class="hue-label">Base hue   the root color</span>
+              </div>
+              <div class="hue-row">
+                <div class="hue-chip" style="background:#A8C8F5"></div>
+                <span class="hue-label">Tint   hue + white</span>
+              </div>
+              <div class="hue-row">
+                <div class="hue-chip" style="background:#1B4A80"></div>
+                <span class="hue-label">Shade   hue + black</span>
+              </div>
+              <div class="hue-row">
+                <div class="hue-chip" style="background:#6E8FB0"></div>
+                <span class="hue-label">Tone   hue + grey</span>
+              </div>
+            </div>
+          </div>
+          <div class="term-info">
+            <p class="term-tag">Theory</p>
+            <h2 class="term-name">Hue / Tint / Shade</h2>
+            <p class="term-desc">Hue is the base color at full saturation. Adding white creates a tint (lighter). Adding black creates a shade (darker). Adding grey creates a tone (desaturated). Building this way ensures harmonious, predictable relationships.</p>
+          </div>
+        </li>
+
+        <li class="term-row">
+          <div class="term-demo">
+            <div>
+              <div class="alpha-row">
+                <div class="alpha-wrap">
+                  <div class="alpha-chip" style="opacity:1"></div>
+                  <span class="alpha-label">100%</span>
+                </div>
+                <div class="alpha-wrap">
+                  <div class="alpha-chip" style="opacity:0.7"></div>
+                  <span class="alpha-label">70%</span>
+                </div>
+                <div class="alpha-wrap">
+                  <div class="alpha-chip" style="opacity:0.4"></div>
+                  <span class="alpha-label">40%</span>
+                </div>
+                <div class="alpha-wrap">
+                  <div class="alpha-chip" style="opacity:0.15"></div>
+                  <span class="alpha-label">15%</span>
+                </div>
+                <div class="alpha-wrap">
+                  <div class="alpha-chip" style="opacity:0.05"></div>
+                  <span class="alpha-label">5%</span>
+                </div>
+              </div>
+              <p style="font-size:0.6875rem;color:var(--muted-fg);margin-top:0.875rem;font-family:var(--mono)">rgba(59, 125, 216, α)</p>
+            </div>
+          </div>
+          <div class="term-info">
+            <p class="term-tag">Alpha</p>
+            <h2 class="term-name">Opacity / Alpha</h2>
+            <p class="term-desc">The transparency channel (0–100%) of a color. CSS rgba() or hex8 notation allows surfaces, overlays, and dividers to inherit the background beneath them   critical for dark-mode-ready, layered design systems.</p>
+          </div>
+        </li>
+
+        <li class="term-row">
+          <div class="term-demo">
+            <div class="contrast-stack">
+              <div class="contrast-block" style="background:#1A1A1A;color:#F9F8F6">
+                Charcoal on Alabaster
+                <span class="contrast-ratio">12.6:1   AAA</span>
+              </div>
+              <div class="contrast-block" style="background:#F9F8F6;color:#6C6863;border:1px solid var(--border)">
+                Warm Grey on Alabaster
+                <span class="contrast-ratio">4.8:1   AA</span>
+              </div>
+              <div class="contrast-block" style="background:#F9F8F6;color:#D4AF37;border:1px solid var(--border)">
+                Gold on Alabaster
+                <span class="contrast-ratio">2.4:1   Fail</span>
+              </div>
+              <div class="contrast-block" style="background:#1A1A1A;color:#D4AF37">
+                Gold on Charcoal
+                <span class="contrast-ratio">5.2:1   AA</span>
+              </div>
+            </div>
+          </div>
+          <div class="term-info">
+            <p class="term-tag">Accessibility</p>
+            <h2 class="term-name">Contrast Ratio</h2>
+            <p class="term-desc">WCAG 2.1 requires 4.5:1 for normal text (AA) and 7:1 for AAA. Large text (18px+ or 14px bold) passes at 3:1. Always check text on backgrounds   gold on light backgrounds commonly fails despite looking fine to many eyes.</p>
+          </div>
+        </li>
+
+        <li class="term-row">
+          <div class="term-demo">
+            <div style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:flex-end">
+              <div style="display:flex;flex-direction:column;gap:0.375rem;align-items:center">
+                <div style="display:flex;height:40px">
+                  <div style="width:20px;background:#C17A3A"></div>
+                  <div style="width:20px;background:#E8A96A"></div>
+                  <div style="width:20px;background:#F5D9B8"></div>
+                </div>
+                <span style="font-size:0.5rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted-fg)">Warm</span>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:0.375rem;align-items:center">
+                <div style="display:flex;height:40px">
+                  <div style="width:20px;background:#1E4A8A"></div>
+                  <div style="width:20px;background:#5B9BF5"></div>
+                  <div style="width:20px;background:#C7DCFF"></div>
+                </div>
+                <span style="font-size:0.5rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted-fg)">Cool</span>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:0.375rem;align-items:center">
+                <div style="display:flex;height:40px">
+                  <div style="width:20px;background:#4A7C5A"></div>
+                  <div style="width:20px;background:#7DB88A"></div>
+                  <div style="width:20px;background:#C8E0CD"></div>
+                </div>
+                <span style="font-size:0.5rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted-fg)">Neutral</span>
+              </div>
+            </div>
+          </div>
+          <div class="term-info">
+            <p class="term-tag">Theory</p>
+            <h2 class="term-name">Color Temperature</h2>
+            <p class="term-desc">Warm hues (red, orange, yellow) advance visually and feel energetic, inviting, and urgent. Cool hues (blue, green, violet) recede and feel calm, trustworthy, and professional. Neutral greens and earth tones sit between and work universally. Brand personality often starts here.</p>
+          </div>
+        </li>
+
+        <li class="term-row">
+          <div class="term-demo">
+            <div style="display:flex;gap:1rem;align-items:center">
+              <div style="display:flex;flex-direction:column;gap:0.375rem;align-items:center">
+                <div style="display:flex;height:48px">
+                  <div style="width:16px;background:#FF2D55"></div>
+                  <div style="width:16px;background:#FF6B6B"></div>
+                  <div style="width:16px;background:#FF9F9F"></div>
+                </div>
+                <span style="font-size:0.5rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted-fg)">High</span>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:0.375rem;align-items:center">
+                <div style="display:flex;height:48px">
+                  <div style="width:16px;background:#B05060"></div>
+                  <div style="width:16px;background:#C87880"></div>
+                  <div style="width:16px;background:#DBA8B0"></div>
+                </div>
+                <span style="font-size:0.5rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted-fg)">Medium</span>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:0.375rem;align-items:center">
+                <div style="display:flex;height:48px">
+                  <div style="width:16px;background:#7A5A5E"></div>
+                  <div style="width:16px;background:#9E8082"></div>
+                  <div style="width:16px;background:#C4AAAC"></div>
+                </div>
+                <span style="font-size:0.5rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted-fg)">Low</span>
+              </div>
+            </div>
+          </div>
+          <div class="term-info">
+            <p class="term-tag">Theory</p>
+            <h2 class="term-name">Saturation</h2>
+            <p class="term-desc">Saturation is the intensity of a hue. Highly saturated colors feel energetic, playful, and consumer-facing. Desaturated (muted) colors read as sophisticated, premium, and restrained. Most luxury brands run deliberately low saturation palettes — brightness and purity feel cheap at high price points.</p>
+          </div>
+        </li>
+
+        <li class="term-row">
+          <div class="term-demo">
+            <div style="display:flex;flex-direction:column;gap:0.75rem;width:100%;max-width:280px">
+              <div style="display:flex;height:32px">
+                <div style="flex:3;background:#1A1A1A"></div>
+                <div style="flex:1;background:#D4AF37"></div>
+                <div style="flex:2;background:#EBE5DE"></div>
+                <div style="flex:4;background:#F9F8F6;border-right:1px solid var(--border)"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:0.5rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted-fg)">
+                <span>Primary</span><span>Accent</span><span>Muted</span><span>Base</span>
+              </div>
+              <div style="display:flex;gap:0.375rem;flex-wrap:wrap">
+                <span style="font-size:0.5625rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted-fg);border:1px solid var(--border);padding:0.15rem 0.4rem">60%</span>
+                <span style="font-size:0.5625rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted-fg);border:1px solid var(--border);padding:0.15rem 0.4rem">30%</span>
+                <span style="font-size:0.5625rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted-fg);border:1px solid var(--border);padding:0.15rem 0.4rem">10%</span>
+              </div>
+            </div>
+          </div>
+          <div class="term-info">
+            <p class="term-tag">Strategy</p>
+            <h2 class="term-name">The 60-30-10 Rule</h2>
+            <p class="term-desc">A palette proportion rule: 60% dominant (usually neutral — background, base surfaces), 30% secondary (supporting tone — headers, cards, UI structure), 10% accent (the brand's signature color — buttons, highlights, interactive states). Breaking this ratio is how you signal something is wrong or urgent.</p>
+          </div>
+        </li>
+
+        <li class="term-row">
+          <div class="term-demo">
+            <div style="display:flex;flex-direction:column;gap:0.625rem;width:100%;max-width:280px">
+              <div style="display:flex;gap:0.5rem;align-items:center">
+                <div style="width:10px;height:10px;border-radius:50%;background:#1E3A6E;flex-shrink:0"></div>
+                <span style="font-size:0.6875rem;color:var(--muted-fg)">Finance, law, tech, healthcare</span>
+              </div>
+              <div style="display:flex;gap:0.5rem;align-items:center">
+                <div style="width:10px;height:10px;border-radius:50%;background:#2D7A4F;flex-shrink:0"></div>
+                <span style="font-size:0.6875rem;color:var(--muted-fg)">Sustainability, wellness, food</span>
+              </div>
+              <div style="display:flex;gap:0.5rem;align-items:center">
+                <div style="width:10px;height:10px;border-radius:50%;background:#C27C1A;flex-shrink:0"></div>
+                <span style="font-size:0.6875rem;color:var(--muted-fg)">Food, retail, energy, optimism</span>
+              </div>
+              <div style="display:flex;gap:0.5rem;align-items:center">
+                <div style="width:10px;height:10px;border-radius:50%;background:#1A1A1A;flex-shrink:0"></div>
+                <span style="font-size:0.6875rem;color:var(--muted-fg)">Luxury, fashion, premium goods</span>
+              </div>
+              <div style="display:flex;gap:0.5rem;align-items:center">
+                <div style="width:10px;height:10px;border-radius:50%;background:#8B2635;flex-shrink:0"></div>
+                <span style="font-size:0.6875rem;color:var(--muted-fg)">Urgency, sale, passion, food</span>
+              </div>
+              <div style="display:flex;gap:0.5rem;align-items:center">
+                <div style="width:10px;height:10px;border-radius:50%;background:#6B3FA0;flex-shrink:0"></div>
+                <span style="font-size:0.6875rem;color:var(--muted-fg)">Creativity, premium, beauty</span>
+              </div>
+            </div>
+          </div>
+          <div class="term-info">
+            <p class="term-tag">Strategy</p>
+            <h2 class="term-name">Industry Color Conventions</h2>
+            <p class="term-desc">Certain hues carry strong sector associations built up over decades. Blue signals trust (finance, tech, healthcare). Green signals nature and growth. Black signals luxury and precision. These aren't rules to follow blindly — breaking convention can differentiate a brand — but they're invisible expectations your audience arrives with.</p>
+          </div>
+        </li>
+
+        <li class="term-row">
+          <div class="term-demo">
+            <div style="display:flex;flex-direction:column;gap:0.625rem;width:100%;max-width:300px">
+              <div style="display:flex;gap:2px">
+                <div style="flex:1;height:32px;background:#1E3A6E"></div>
+                <div style="flex:1;height:32px;background:#2563B0"></div>
+                <div style="flex:1;height:32px;background:#3B7DD8"></div>
+                <div style="flex:1;height:32px;background:#EEF4FF"></div>
+                <div style="flex:1;height:32px;background:#F5F8FF;border:1px solid var(--border)"></div>
+              </div>
+              <div style="display:flex;gap:2px">
+                <div style="flex:1;height:32px;background:#D4AF37"></div>
+                <div style="flex:1;height:32px;background:#EBE5DE"></div>
+                <div style="flex:1;height:32px;background:#6C6863"></div>
+                <div style="flex:1;height:32px;background:#1A1A1A"></div>
+                <div style="flex:1;height:32px;background:#F9F8F6;border:1px solid var(--border)"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:0.5rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted-fg)">
+                <span>Brand</span><span>Accent</span><span>Neutral</span><span>Base</span>
+              </div>
+            </div>
+          </div>
+          <div class="term-info">
+            <p class="term-tag">Strategy</p>
+            <h2 class="term-name">Building a Balanced Palette</h2>
+            <p class="term-desc">A complete UI palette needs four layers: a brand color (primary actions, key UI moments), an accent (hover states, highlights — often a complementary hue), a neutral scale (backgrounds, surfaces, borders, secondary text), and functional colors (success, warning, danger). The brand color is the only one that should feel distinctive. Everything else should feel invisible.</p>
+          </div>
+        </li>
+
+      </ul>
+
+      <!-- COLOR SHOWCASE -->
+      <div class="showcase">
+        <div class="showcase-header"><span class="showcase-eyebrow">Visual Reference</span></div>
+
+        <div class="showcase-section">
+          <p class="showcase-section-title" id="color-badges">Semantic Badges in Context</p>
+          <div class="sc-grid">
+            <div class="sc-item">
+              <div class="sc-demo"><span class="badge badge-info"><span class="badge-dot" style="background:#3B7DD8"></span>In progress</span></div>
+              <p class="sc-label">Info</p>
+              <p class="sc-desc">Neutral status. Active processes, informational states, loading. Blue signals awareness without urgency.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><span class="badge badge-success"><span class="badge-dot" style="background:#2D7A4F"></span>Completed</span></div>
+              <p class="sc-label">Success</p>
+              <p class="sc-desc">Positive outcome. Confirmation, completion, verified. Green is universal for "all good."</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><span class="badge badge-warning"><span class="badge-dot" style="background:#C27C1A"></span>Review needed</span></div>
+              <p class="sc-label">Warning</p>
+              <p class="sc-desc">Caution required. Not broken, but needs attention. Yellow/amber is attention without alarm.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><span class="badge badge-danger"><span class="badge-dot" style="background:#8B2635"></span>Failed</span></div>
+              <p class="sc-label">Danger</p>
+              <p class="sc-desc">Something is wrong and action is required. Red demands attention. Never cry wolf with this color.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><span class="badge badge-neutral"><span class="badge-dot" style="background:var(--muted-fg)"></span>Draft</span></div>
+              <p class="sc-label">Neutral</p>
+              <p class="sc-desc">No semantic meaning. Inactive, archived, or pending states that don't need urgency or positivity.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="showcase-section">
+          <p class="showcase-section-title" id="color-legibility">Text on Color — Legibility Pairings</p>
+          <div class="sc-grid">
+            <div class="sc-item">
+              <div class="sc-demo">
+                <div class="color-text-demo" style="background:#1A1A1A;color:#F9F8F6">
+                  <div style="font-size:0.5rem;letter-spacing:0.2em;text-transform:uppercase;opacity:0.5;margin-bottom:0.25rem">12.6:1 — AAA</div>
+                  Charcoal on Alabaster
+                </div>
+              </div>
+              <p class="sc-label">Dark on light</p>
+              <p class="sc-desc">Maximum contrast. The default text pairing for all primary content. Triple-A accessibility.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo">
+                <div class="color-text-demo" style="background:#F9F8F6;color:#1A1A1A;border:1px solid var(--border)">
+                  <div style="font-size:0.5rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted-fg);margin-bottom:0.25rem">12.6:1 — AAA</div>
+                  Alabaster on Charcoal
+                </div>
+              </div>
+              <p class="sc-label">Light on dark</p>
+              <p class="sc-desc">Inverted pairing for dark sections. Equally high contrast, equally valid.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo">
+                <div class="color-text-demo" style="background:#1A1A1A;color:#D4AF37">
+                  <div style="font-size:0.5rem;letter-spacing:0.2em;text-transform:uppercase;opacity:0.5;margin-bottom:0.25rem">5.2:1 — AA</div>
+                  Gold on Charcoal
+                </div>
+              </div>
+              <p class="sc-label">Accent on dark</p>
+              <p class="sc-desc">Passes AA. Use for highlights, hover states, and call-outs on dark backgrounds only.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo">
+                <div class="color-text-demo" style="background:#F9F8F6;color:#6C6863;border:1px solid var(--border)">
+                  <div style="font-size:0.5rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted-fg);margin-bottom:0.25rem">4.8:1 — AA</div>
+                  Warm grey text
+                </div>
+              </div>
+              <p class="sc-label">Secondary text</p>
+              <p class="sc-desc">Warm grey for captions, metadata, and secondary labels. Passes AA, never use for primary content.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo">
+                <div class="color-text-demo" style="background:#F9F8F6;color:#D4AF37;border:1px solid var(--border)">
+                  <div style="font-size:0.5rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted-fg);margin-bottom:0.25rem">2.4:1 — Fail</div>
+                  Gold on light
+                </div>
+              </div>
+              <p class="sc-label">Accent on light — FAIL</p>
+              <p class="sc-desc">Gold on light backgrounds fails WCAG at 2.4:1. Decorative only. Never use for readable text.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="showcase-section">
+          <p class="showcase-section-title" id="color-alpha">Alpha / Opacity in Use</p>
+          <div class="sc-grid sc-wide">
+            <div class="sc-item">
+              <div class="sc-demo">
+                <div style="width:100%;height:48px;background:rgba(59,125,216,0.1);border:1px solid rgba(59,125,216,0.2);display:flex;align-items:center;padding:0 0.75rem">
+                  <span style="font-size:0.75rem;color:#1A4A8A;font-weight:500">Information notice</span>
+                </div>
+              </div>
+              <p class="sc-label">Tinted surface — 10%</p>
+              <p class="sc-desc">Role color at 10% opacity as a background tint. Creates a soft semantic zone without overpowering nearby content.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo">
+                <div style="position:relative;width:100%;height:48px">
+                  <div style="position:absolute;inset:0;background:repeating-linear-gradient(45deg,#EBE5DE,#EBE5DE 4px,#F9F8F6 4px,#F9F8F6 8px)"></div>
+                  <div style="position:absolute;inset:0;background:rgba(26,26,26,0.4);display:flex;align-items:center;justify-content:center">
+                    <span style="font-size:0.625rem;letter-spacing:0.15em;text-transform:uppercase;color:white">Overlay</span>
+                  </div>
+                </div>
+              </div>
+              <p class="sc-label">Modal scrim — 40%</p>
+              <p class="sc-desc">Semi-transparent dark overlay over page content. 30–50% opacity. Focuses attention on the modal above it.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo">
+                <div style="width:100%;display:flex;flex-direction:column">
+                  <div style="padding:0.5rem 0;border-bottom:1px solid rgba(26,26,26,0.08);font-size:0.75rem;color:var(--fg)">List item one</div>
+                  <div style="padding:0.5rem 0;border-bottom:1px solid rgba(26,26,26,0.08);font-size:0.75rem;color:var(--fg)">List item two</div>
+                  <div style="padding:0.5rem 0;font-size:0.75rem;color:var(--fg)">List item three</div>
+                </div>
+              </div>
+              <p class="sc-label">Alpha dividers — 8%</p>
+              <p class="sc-desc">rgba(0,0,0,0.08) for dividers. Inherits background, works on any surface color without looking out of place.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="showcase-section">
+          <p class="showcase-section-title" id="color-scale">Color Scale in Application</p>
+          <div class="sc-grid sc-wide">
+            <div class="sc-item">
+              <div class="sc-demo sc-demo-left">
+                <div style="display:flex;flex-direction:column;gap:0;width:100%">
+                  <div style="background:#EEF4FF;padding:0.625rem 0.75rem;font-size:0.6875rem;color:#0F3063">Surface / background (50)</div>
+                  <div style="background:#C7DCFF;padding:0.625rem 0.75rem;font-size:0.6875rem;color:#0F3063">Tinted bg / hover (100)</div>
+                  <div style="background:#3B7DD8;padding:0.625rem 0.75rem;font-size:0.6875rem;color:white">Primary action (500)</div>
+                  <div style="background:#1A4A8A;padding:0.625rem 0.75rem;font-size:0.6875rem;color:white">Active / pressed (700)</div>
+                  <div style="background:#0F3063;padding:0.625rem 0.75rem;font-size:0.6875rem;color:white">Text on tint (900)</div>
+                </div>
+              </div>
+              <p class="sc-label">Blue scale in use</p>
+              <p class="sc-desc">Each step of a scale has a role: 50 for backgrounds, 100 for hover, 500 for actions, 700 for active, 900 for text. The scale handles every state without ad-hoc colors.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo sc-demo-left">
+                <div style="display:flex;flex-direction:column;gap:0.5rem;width:100%">
+                  <div style="display:flex;gap:0.5rem;align-items:center">
+                    <div style="width:32px;height:32px;background:#EEF4FF;border:1px solid var(--border);flex-shrink:0"></div>
+                    <span style="font-size:0.6875rem;color:var(--muted-fg)">Page background</span>
+                  </div>
+                  <div style="display:flex;gap:0.5rem;align-items:center">
+                    <div style="width:32px;height:32px;background:#C7DCFF;flex-shrink:0"></div>
+                    <span style="font-size:0.6875rem;color:var(--muted-fg)">Hover state</span>
+                  </div>
+                  <div style="display:flex;gap:0.5rem;align-items:center">
+                    <div style="width:32px;height:32px;background:#3B7DD8;flex-shrink:0"></div>
+                    <span style="font-size:0.6875rem;color:var(--muted-fg)">Button / link</span>
+                  </div>
+                  <div style="display:flex;gap:0.5rem;align-items:center">
+                    <div style="width:32px;height:32px;background:#0F3063;flex-shrink:0"></div>
+                    <span style="font-size:0.6875rem;color:var(--muted-fg)">Text on tint</span>
+                  </div>
+                </div>
+              </div>
+              <p class="sc-label">Chip + role mapping</p>
+              <p class="sc-desc">A visual key showing which step of the scale maps to which UI role. This is how you document a color system for a team.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="showcase-section">
+          <p class="showcase-section-title" id="color-palettes">20 Palettes — What Each One Conveys</p>
+          <div class="sc-grid" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr))">
+
+            <!-- 1 -->
+            <div class="sc-item">
+              <div style="display:flex;height:40px;width:100%">
+                <div style="flex:1;background:#0A1628"></div>
+                <div style="flex:1;background:#1E3A6E"></div>
+                <div style="flex:1;background:#2563B0"></div>
+                <div style="flex:1;background:#B8C8DC"></div>
+                <div style="flex:1;background:#EEF2F8"></div>
+              </div>
+              <p class="sc-label">Midnight Navy</p>
+              <p class="sc-desc">Authority, trust, stability. Finance, law firms, enterprise SaaS, government. The most universally safe choice for serious B2B products.</p>
+            </div>
+
+            <!-- 2 -->
+            <div class="sc-item">
+              <div style="display:flex;height:40px;width:100%">
+                <div style="flex:1;background:#1A1A1A"></div>
+                <div style="flex:1;background:#2C2C2C"></div>
+                <div style="flex:1;background:#D4AF37"></div>
+                <div style="flex:1;background:#E8D88A"></div>
+                <div style="flex:1;background:#F9F8F6"></div>
+              </div>
+              <p class="sc-label">Obsidian & Gold</p>
+              <p class="sc-desc">Luxury, exclusivity, premium positioning. High-end fashion, jewelry, spirits, private banking. Gold must remain an accent — never a dominant color.</p>
+            </div>
+
+            <!-- 3 -->
+            <div class="sc-item">
+              <div style="display:flex;height:40px;width:100%">
+                <div style="flex:1;background:#2D3A2E"></div>
+                <div style="flex:1;background:#4A6B4D"></div>
+                <div style="flex:1;background:#7DB88A"></div>
+                <div style="flex:1;background:#C8E0CD"></div>
+                <div style="flex:1;background:#F0F5F1"></div>
+              </div>
+              <p class="sc-label">Forest & Sage</p>
+              <p class="sc-desc">Nature, sustainability, calm. Eco brands, organic food, wellness, outdoor gear. Signals environmental values without shouting them.</p>
+            </div>
+
+            <!-- 4 -->
+            <div class="sc-item">
+              <div style="display:flex;height:40px;width:100%">
+                <div style="flex:1;background:#C17A3A"></div>
+                <div style="flex:1;background:#D4956A"></div>
+                <div style="flex:1;background:#E8C4A0"></div>
+                <div style="flex:1;background:#F5E6D8"></div>
+                <div style="flex:1;background:#FBF5EE"></div>
+              </div>
+              <p class="sc-label">Warm Terracotta</p>
+              <p class="sc-desc">Artisan, handcrafted, earthy. Independent food brands, ceramics, interior design, lifestyle retail. Warmth without sweetness.</p>
+            </div>
+
+            <!-- 5 -->
+            <div class="sc-item">
+              <div style="display:flex;height:40px;width:100%">
+                <div style="flex:1;background:#E8D5CF"></div>
+                <div style="flex:1;background:#D4A8A0"></div>
+                <div style="flex:1;background:#B07870"></div>
+                <div style="flex:1;background:#7A4A48"></div>
+                <div style="flex:1;background:#2A1A1A"></div>
+              </div>
+              <p class="sc-label">Blush & Dusty Rose</p>
+              <p class="sc-desc">Soft femininity, romance, care. Beauty, skincare, wedding, fashion. The dusty tone keeps it sophisticated rather than saccharine.</p>
+            </div>
+
+            <!-- 6 -->
+            <div class="sc-item">
+              <div style="display:flex;height:40px;width:100%">
+                <div style="flex:1;background:#0D0D0D"></div>
+                <div style="flex:1;background:#00F5A0"></div>
+                <div style="flex:1;background:#00C8FF"></div>
+                <div style="flex:1;background:#1A1A2E"></div>
+                <div style="flex:1;background:#0A0A1A"></div>
+              </div>
+              <p class="sc-label">Neon on Dark</p>
+              <p class="sc-desc">Futuristic, edgy, digital-native. Gaming, crypto, cyberpunk aesthetics, developer tools. The neon must be used sparingly or it becomes noise.</p>
+            </div>
+
+            <!-- 7 -->
+            <div class="sc-item">
+              <div style="display:flex;height:40px;width:100%">
+                <div style="flex:1;background:#E8F4F8"></div>
+                <div style="flex:1;background:#B8DCE8"></div>
+                <div style="flex:1;background:#7ABCD4"></div>
+                <div style="flex:1;background:#3A8AAA"></div>
+                <div style="flex:1;background:#1A4A5E"></div>
+              </div>
+              <p class="sc-label">Arctic Ice</p>
+              <p class="sc-desc">Clean, clinical, precise. Healthcare tech, productivity apps, dental, pharmaceutical. Sterile in a reassuring way — competence without warmth.</p>
+            </div>
+
+            <!-- 8 -->
+            <div class="sc-item">
+              <div style="display:flex;height:40px;width:100%">
+                <div style="flex:1;background:#3D1A6E"></div>
+                <div style="flex:1;background:#6B3FA0"></div>
+                <div style="flex:1;background:#9B70C8"></div>
+                <div style="flex:1;background:#D4B8E8"></div>
+                <div style="flex:1;background:#F5EFF8"></div>
+              </div>
+              <p class="sc-label">Deep Violet</p>
+              <p class="sc-desc">Creative, mysterious, premium. Beauty brands, music platforms, entertainment, spiritual wellness. Purple historically signals royalty and imagination.</p>
+            </div>
+
+            <!-- 9 -->
+            <div class="sc-item">
+              <div style="display:flex;height:40px;width:100%">
+                <div style="flex:1;background:#C04C3C"></div>
+                <div style="flex:1;background:#E06050"></div>
+                <div style="flex:1;background:#F0F0F0"></div>
+                <div style="flex:1;background:#FFFFFF"></div>
+                <div style="flex:1;background:#1A1A1A"></div>
+              </div>
+              <p class="sc-label">Classic Red & White</p>
+              <p class="sc-desc">Urgency, appetite, boldness. Food brands, retail, sports, sale events. Red triggers action. The most attention-grabbing palette in any environment.</p>
+            </div>
+
+            <!-- 10 -->
+            <div class="sc-item">
+              <div style="display:flex;height:40px;width:100%">
+                <div style="flex:1;background:#C8B89A"></div>
+                <div style="flex:1;background:#A89070"></div>
+                <div style="flex:1;background:#786050"></div>
+                <div style="flex:1;background:#F5EDE0"></div>
+                <div style="flex:1;background:#FDFAF5"></div>
+              </div>
+              <p class="sc-label">Desert Sand & Linen</p>
+              <p class="sc-desc">Timeless, quiet, considered. Architecture, interior design, real estate, apothecary. The palette of restraint — nothing competes, everything belongs.</p>
+            </div>
+
+            <!-- 11 -->
+            <div class="sc-item">
+              <div style="display:flex;height:40px;width:100%">
+                <div style="flex:1;background:#004D4D"></div>
+                <div style="flex:1;background:#007A7A"></div>
+                <div style="flex:1;background:#E8734A"></div>
+                <div style="flex:1;background:#F5B89A"></div>
+                <div style="flex:1;background:#FFF5F0"></div>
+              </div>
+              <p class="sc-label">Teal & Coral</p>
+              <p class="sc-desc">Vibrant, tropical, optimistic. Travel apps, lifestyle brands, consumer products. The complementary contrast creates energy and visual tension without aggression.</p>
+            </div>
+
+            <!-- 12 -->
+            <div class="sc-item">
+              <div style="display:flex;height:40px;width:100%">
+                <div style="flex:1;background:#1A2A1A"></div>
+                <div style="flex:1;background:#2A3A2A"></div>
+                <div style="flex:1;background:#8BC34A"></div>
+                <div style="flex:1;background:#C5E09A"></div>
+                <div style="flex:1;background:#F0F5E8"></div>
+              </div>
+              <p class="sc-label">Charcoal & Lime</p>
+              <p class="sc-desc">Urban, modern, high-energy. Fitness apps, sports brands, tech startups, urban lifestyle. The electric green on near-black creates sharp contrast and forward momentum.</p>
+            </div>
+
+            <!-- 13 -->
+            <div class="sc-item">
+              <div style="display:flex;height:40px;width:100%">
+                <div style="flex:1;background:#C4B8D0"></div>
+                <div style="flex:1;background:#A090B8"></div>
+                <div style="flex:1;background:#7870A0"></div>
+                <div style="flex:1;background:#EEE8F5"></div>
+                <div style="flex:1;background:#FAF8FD"></div>
+              </div>
+              <p class="sc-label">Soft Lavender</p>
+              <p class="sc-desc">Gentle, dreamy, spiritual. Meditation apps, sleep products, mental wellness platforms. Low saturation keeps it from feeling childish and leans into serenity.</p>
+            </div>
+
+            <!-- 14 -->
+            <div class="sc-item">
+              <div style="display:flex;height:40px;width:100%">
+                <div style="flex:1;background:#1A3A4A"></div>
+                <div style="flex:1;background:#2A6A7A"></div>
+                <div style="flex:1;background:#A07040"></div>
+                <div style="flex:1;background:#D4A870"></div>
+                <div style="flex:1;background:#F5EDD8"></div>
+              </div>
+              <p class="sc-label">Deep Teal & Bronze</p>
+              <p class="sc-desc">Refined, coastal, sophisticated. Luxury hospitality, boutique hotels, high-end travel. The bronze acts as a warm metallic accent — nature meets craft.</p>
+            </div>
+
+            <!-- 15 -->
+            <div class="sc-item">
+              <div style="display:flex;height:40px;width:100%">
+                <div style="flex:1;background:#E80080"></div>
+                <div style="flex:1;background:#FF40A0"></div>
+                <div style="flex:1;background:#1A1A1A"></div>
+                <div style="flex:1;background:#2E2E2E"></div>
+                <div style="flex:1;background:#F5F5F5"></div>
+              </div>
+              <p class="sc-label">Hot Pink & Black</p>
+              <p class="sc-desc">Bold, provocative, fashion-forward. High fashion, cosmetics, nightlife, provocative consumer brands. The contrast is deliberate — it commands attention and refuses to apologize.</p>
+            </div>
+
+            <!-- 16 -->
+            <div class="sc-item">
+              <div style="display:flex;height:40px;width:100%">
+                <div style="flex:1;background:#7A6A50"></div>
+                <div style="flex:1;background:#A09070"></div>
+                <div style="flex:1;background:#C8B890"></div>
+                <div style="flex:1;background:#E8E0D0"></div>
+                <div style="flex:1;background:#F8F5EE"></div>
+              </div>
+              <p class="sc-label">Warm Monochrome</p>
+              <p class="sc-desc">Editorial, sophisticated, understated. Luxury publishing, fashion editorial, premium goods. The single hue in varying values signals extreme intentionality — nothing is accidental.</p>
+            </div>
+
+            <!-- 17 -->
+            <div class="sc-item">
+              <div style="display:flex;height:40px;width:100%">
+                <div style="flex:1;background:#4A7A9B"></div>
+                <div style="flex:1;background:#F5C842"></div>
+                <div style="flex:1;background:#FDE98A"></div>
+                <div style="flex:1;background:#E8F4FC"></div>
+                <div style="flex:1;background:#FFFFFF"></div>
+              </div>
+              <p class="sc-label">Sky & Sunshine</p>
+              <p class="sc-desc">Optimistic, open, energizing. Education platforms, children's products, consumer wellness, outdoor brands. The yellow-blue complementary pair is universally cheerful.</p>
+            </div>
+
+            <!-- 18 -->
+            <div class="sc-item">
+              <div style="display:flex;height:40px;width:100%">
+                <div style="flex:1;background:#5A3A2A"></div>
+                <div style="flex:1;background:#8B6B50"></div>
+                <div style="flex:1;background:#B89878"></div>
+                <div style="flex:1;background:#D4C0A8"></div>
+                <div style="flex:1;background:#F5EDE0"></div>
+              </div>
+              <p class="sc-label">Tobacco & Parchment</p>
+              <p class="sc-desc">Heritage, craftsmanship, tradition. Whisky brands, leather goods, tobacco, antique and archival businesses. Age and patience made visible through color.</p>
+            </div>
+
+            <!-- 19 -->
+            <div class="sc-item">
+              <div style="display:flex;height:40px;width:100%">
+                <div style="flex:1;background:#0F0F1A"></div>
+                <div style="flex:1;background:#1A1A3A"></div>
+                <div style="flex:1;background:#4040C0"></div>
+                <div style="flex:1;background:#8080FF"></div>
+                <div style="flex:1;background:#C0C0FF"></div>
+              </div>
+              <p class="sc-label">Electric Cobalt</p>
+              <p class="sc-desc">Bold, tech-forward, ambitious. Fintech startups, SaaS platforms, AI tools, developer products. Deeper than generic blue — signals intelligence and velocity.</p>
+            </div>
+
+            <!-- 20 -->
+            <div class="sc-item">
+              <div style="display:flex;height:40px;width:100%">
+                <div style="flex:1;background:#3A2A1A"></div>
+                <div style="flex:1;background:#C8A060"></div>
+                <div style="flex:1;background:#E8D0A0"></div>
+                <div style="flex:1;background:#4A8A5A"></div>
+                <div style="flex:1;background:#F0F8F0"></div>
+              </div>
+              <p class="sc-label">Harvest & Leaf</p>
+              <p class="sc-desc">Abundance, seasonal, farm-to-table. Farmers markets, organic food, craft beverages, sustainable agriculture. Warm gold and cool green together signal growth and richness.</p>
+            </div>
+
+            <!-- 21 -->
+            <div class="sc-item">
+              <div style="display:flex;height:40px;width:100%">
+                <div style="flex:1;background:#0D0D0D"></div>
+                <div style="flex:1;background:#1C1C2E"></div>
+                <div style="flex:1;background:#4A3F6B"></div>
+                <div style="flex:1;background:#9B59B6"></div>
+                <div style="flex:1;background:#E8D5F5"></div>
+              </div>
+              <p class="sc-label">Midnight Plum</p>
+              <p class="sc-desc">Mysterious, creative, premium. Beauty brands, fragrance, high-end entertainment, fashion editorials. Deep purple graduating to lavender signals indulgence without being overtly feminine.</p>
+            </div>
+
+            <!-- 22 -->
+            <div class="sc-item">
+              <div style="display:flex;height:40px;width:100%">
+                <div style="flex:1;background:#F5F0E8"></div>
+                <div style="flex:1;background:#D4C5A9"></div>
+                <div style="flex:1;background:#8B7355"></div>
+                <div style="flex:1;background:#4A3728"></div>
+                <div style="flex:1;background:#1A1008"></div>
+              </div>
+              <p class="sc-label">Raw Linen</p>
+              <p class="sc-desc">Tactile, artisanal, understated luxury. Stationery brands, interior design studios, independent publishers, bespoke tailoring. A monochrome of tan and umber reads as craft and restraint.</p>
+            </div>
+
+            <!-- 23 -->
+            <div class="sc-item">
+              <div style="display:flex;height:40px;width:100%">
+                <div style="flex:1;background:#00C9A7"></div>
+                <div style="flex:1;background:#00A896"></div>
+                <div style="flex:1;background:#028090"></div>
+                <div style="flex:1;background:#05445E"></div>
+                <div style="flex:1;background:#D4F5F0"></div>
+              </div>
+              <p class="sc-label">Lagoon</p>
+              <p class="sc-desc">Refreshing, clean, forward-moving. Health tech, wellness platforms, sustainable brands, eco tourism. The teal-to-navy progression communicates clarity and purpose without clinical coldness.</p>
+            </div>
+
+            <!-- 24 -->
+            <div class="sc-item">
+              <div style="display:flex;height:40px;width:100%">
+                <div style="flex:1;background:#FF6B35"></div>
+                <div style="flex:1;background:#F7C59F"></div>
+                <div style="flex:1;background:#EFEFD0"></div>
+                <div style="flex:1;background:#004E89"></div>
+                <div style="flex:1;background:#1A936F"></div>
+              </div>
+              <p class="sc-label">Sunrise Market</p>
+              <p class="sc-desc">Vibrant, optimistic, culturally rich. Food delivery, travel apps, lifestyle retail, global marketplaces. Warm orange and electric blue create high contrast energy; the mint grounds it.</p>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- ══════════════════════════════════════════════════════════
+         SPACING
+    ══════════════════════════════════════════════════════════ -->
+    <div id="panel-spacing" class="tab-panel" role="tabpanel">
+      <ul class="term-list">
+
+        <li class="term-row">
+          <div class="term-demo">
+            <div class="space-scale">
+              <div class="space-row">
+                <div class="space-bar" style="width:4px"></div>
+                <div class="space-meta">
+                  <span class="space-px">4px</span>
+                  <span class="space-token">xs   tight nudges</span>
+                </div>
+              </div>
+              <div class="space-row">
+                <div class="space-bar" style="width:8px"></div>
+                <div class="space-meta">
+                  <span class="space-px">8px</span>
+                  <span class="space-token">sm   inline gaps</span>
+                </div>
+              </div>
+              <div class="space-row">
+                <div class="space-bar" style="width:16px"></div>
+                <div class="space-meta">
+                  <span class="space-px">16px</span>
+                  <span class="space-token">md   component padding</span>
+                </div>
+              </div>
+              <div class="space-row">
+                <div class="space-bar" style="width:24px"></div>
+                <div class="space-meta">
+                  <span class="space-px">24px</span>
+                  <span class="space-token">lg   section gaps</span>
+                </div>
+              </div>
+              <div class="space-row">
+                <div class="space-bar" style="width:48px"></div>
+                <div class="space-meta">
+                  <span class="space-px">48px</span>
+                  <span class="space-token">xl   layout spacing</span>
+                </div>
+              </div>
+              <div class="space-row">
+                <div class="space-bar" style="width:96px"></div>
+                <div class="space-meta">
+                  <span class="space-px">96px</span>
+                  <span class="space-token">2xl   page regions</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="term-info">
+            <p class="term-tag">System</p>
+            <h2 class="term-name">The Spacing Scale</h2>
+            <p class="term-desc">A consistent set of space values   multiples of 4 or 8   from which all padding, margins, and gaps are drawn. Eliminates arbitrary magic numbers and creates a visual rhythm the eye can follow across the entire interface.</p>
+          </div>
+        </li>
+
+        <li class="term-row">
+          <div class="term-demo">
+            <div class="pad-gap-demo">
+              <div>
+                <div class="pad-demo-label">Padding   inside</div>
+                <div class="pad-box">
+                  <div class="pad-inner"></div>
+                </div>
+              </div>
+              <div>
+                <div class="gap-demo-label">Gap   between</div>
+                <div class="gap-items">
+                  <div class="gap-item"></div>
+                  <div class="gap-item"></div>
+                  <div class="gap-item"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="term-info">
+            <p class="term-tag">Model</p>
+            <h2 class="term-name">Padding vs Margin / Gap</h2>
+            <p class="term-desc">Padding is internal   space between a container's edge and its children. Gap (CSS gap property) is external   space between siblings in flex or grid. Modern gap is preferred over margin hacks: it doesn't collapse and works bidirectionally.</p>
+          </div>
+        </li>
+
+        <li class="term-row">
+          <div class="term-demo">
+            <div class="rhythm-demo">
+              <p>First paragraph with proper line-height establishing the vertical cadence of the block.</p>
+              <p>Second paragraph   the gap between them equals exactly one line-height unit, maintaining the beat.</p>
+              <p>Third paragraph. The eye anticipates consistent spacing and reads faster when that expectation is met.</p>
+            </div>
+          </div>
+          <div class="term-info">
+            <p class="term-tag">Rhythm</p>
+            <h2 class="term-name">Vertical Rhythm</h2>
+            <p class="term-desc">A system where all vertical spacing   line-height, paragraph gaps, section breaks   derives from a single baseline unit. Creates a reading cadence the eye can lock into, making even dense layouts feel calm and organized.</p>
+          </div>
+        </li>
+
+      </ul>
+
+      <!-- SPACING SHOWCASE -->
+      <div class="showcase">
+        <div class="showcase-header"><span class="showcase-eyebrow">Visual Reference</span></div>
+
+        <div class="showcase-section">
+          <p class="showcase-section-title" id="spacing-density">Density Spectrum — Same Card, Different Padding</p>
+          <div class="sc-grid">
+            <div class="sc-item">
+              <div class="sc-demo">
+                <div class="density-card" style="padding:4px">
+                  <div class="dc-inner">
+                    <div class="dc-line"></div>
+                    <div class="dc-line short"></div>
+                    <div class="dc-line xshort"></div>
+                  </div>
+                </div>
+              </div>
+              <p class="sc-label">4px — Micro</p>
+              <p class="sc-desc">Extremely tight. Data tables and code editors where maximum information density is the priority.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo">
+                <div class="density-card" style="padding:8px">
+                  <div class="dc-inner">
+                    <div class="dc-line"></div>
+                    <div class="dc-line short"></div>
+                    <div class="dc-line xshort"></div>
+                  </div>
+                </div>
+              </div>
+              <p class="sc-label">8px — Compact</p>
+              <p class="sc-desc">Dense but readable. Dropdown menus, compact lists. Still cramped for primary content areas.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo">
+                <div class="density-card" style="padding:16px">
+                  <div class="dc-inner">
+                    <div class="dc-line"></div>
+                    <div class="dc-line short"></div>
+                    <div class="dc-line xshort"></div>
+                  </div>
+                </div>
+              </div>
+              <p class="sc-label">16px — Standard</p>
+              <p class="sc-desc">The component default. Enough breathing room for comfortable interaction. Works everywhere.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo">
+                <div class="density-card" style="padding:24px">
+                  <div class="dc-inner">
+                    <div class="dc-line"></div>
+                    <div class="dc-line short"></div>
+                    <div class="dc-line xshort"></div>
+                  </div>
+                </div>
+              </div>
+              <p class="sc-label">24px — Comfortable</p>
+              <p class="sc-desc">Content cards and panels. Generous padding signals that the content has room to breathe and be read.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo">
+                <div class="density-card" style="padding:48px 24px">
+                  <div class="dc-inner">
+                    <div class="dc-line"></div>
+                    <div class="dc-line short"></div>
+                    <div class="dc-line xshort"></div>
+                  </div>
+                </div>
+              </div>
+              <p class="sc-label">48px — Spacious</p>
+              <p class="sc-desc">Hero sections and marketing cards. The whitespace itself communicates premium. Content feels important.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="showcase-section">
+          <p class="showcase-section-title" id="spacing-gap">Gap Scale — Same Items, Different Distance</p>
+          <div class="sc-grid">
+            <div class="sc-item">
+              <div class="sc-demo"><div class="gap-demo-row" style="gap:2px"><div class="gap-block"></div><div class="gap-block"></div><div class="gap-block"></div><div class="gap-block"></div></div></div>
+              <p class="sc-label">2px — touching</p>
+              <p class="sc-desc">Items feel like one unit. Use for button groups and segmented controls where visual unity matters.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><div class="gap-demo-row" style="gap:4px"><div class="gap-block"></div><div class="gap-block"></div><div class="gap-block"></div><div class="gap-block"></div></div></div>
+              <p class="sc-label">4px — xs</p>
+              <p class="sc-desc">A breath between related items. Icon + label, tag groups, tight chip rows.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><div class="gap-demo-row" style="gap:8px"><div class="gap-block"></div><div class="gap-block"></div><div class="gap-block"></div></div></div>
+              <p class="sc-label">8px — sm</p>
+              <p class="sc-desc">Inline gaps within a component. Form fields within a row, action button groups.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><div class="gap-demo-row" style="gap:16px"><div class="gap-block"></div><div class="gap-block"></div><div class="gap-block"></div></div></div>
+              <p class="sc-label">16px — md</p>
+              <p class="sc-desc">Between sibling components in a layout. Cards in a grid row, form field stacks.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><div class="gap-demo-row" style="gap:24px"><div class="gap-block"></div><div class="gap-block"></div></div></div>
+              <p class="sc-label">24px — lg</p>
+              <p class="sc-desc">Section-level separation. Between distinct content blocks that belong to the same region.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo"><div class="gap-demo-row" style="gap:48px"><div class="gap-block"></div><div class="gap-block"></div></div></div>
+              <p class="sc-label">48px — xl</p>
+              <p class="sc-desc">Between page-level sections. The whitespace itself becomes a visual breath mark that resets the reader's attention.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="showcase-section">
+          <p class="showcase-section-title" id="spacing-whitespace">Whitespace as a Signal</p>
+          <div class="sc-grid sc-wide">
+            <div class="sc-item">
+              <div class="sc-demo sc-demo-left sc-demo-tall">
+                <div style="width:100%;font-size:0.75rem;color:var(--fg)">
+                  <div style="border-bottom:1px solid var(--border);padding-bottom:4px;margin-bottom:4px;font-weight:500">Card title</div>
+                  <div style="margin-bottom:4px">Short description of the item in two lines of text to show density.</div>
+                  <div style="font-size:0.625rem;color:var(--muted-fg)">Metadata label</div>
+                </div>
+              </div>
+              <p class="sc-label">Tight — 4px gaps</p>
+              <p class="sc-desc">Maximum density. Efficient but cold. Every element competes equally for attention because nothing has room.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo sc-demo-left sc-demo-tall">
+                <div style="width:100%;font-size:0.75rem;color:var(--fg)">
+                  <div style="border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:12px;font-weight:500">Card title</div>
+                  <div style="margin-bottom:12px">Short description of the item in two lines of text to show density.</div>
+                  <div style="font-size:0.625rem;color:var(--muted-fg)">Metadata label</div>
+                </div>
+              </div>
+              <p class="sc-label">Balanced — 12px gaps</p>
+              <p class="sc-desc">Hierarchy emerges. The title reads first, then the body, then the label. Space creates reading order.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo sc-demo-left sc-demo-tall">
+                <div style="width:100%;font-size:0.75rem;color:var(--fg)">
+                  <div style="border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:20px;font-weight:500">Card title</div>
+                  <div style="margin-bottom:20px">Short description of the item in two lines of text to show density.</div>
+                  <div style="font-size:0.625rem;color:var(--muted-fg)">Metadata label</div>
+                </div>
+              </div>
+              <p class="sc-label">Generous — 20px gaps</p>
+              <p class="sc-desc">Premium feel. Every element has its own territory. The card feels considered and unrushed.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- ══════════════════════════════════════════════════════════
+         INPUTS
+    ══════════════════════════════════════════════════════════ -->
+    <div id="panel-inputs" class="tab-panel" role="tabpanel">
+      <ul class="term-list">
+
+        <li class="term-row">
+          <div class="term-demo">
+            <input class="input" type="text" placeholder="Your full name" aria-label="Text input example">
+          </div>
+          <div class="term-info">
+            <p class="term-tag">Control</p>
+            <h2 class="term-name">Text Input</h2>
+            <p class="term-desc">The foundational form control for single-line text. Always pair with a visible label above the field   placeholder text disappears when the user types. The focus state must be visually distinct from the default state.</p>
+          </div>
+        </li>
+
+        <li class="term-row">
+          <div class="term-demo">
+            <textarea class="textarea" placeholder="Tell us about your project…" aria-label="Textarea example" rows="4"></textarea>
+          </div>
+          <div class="term-info">
+            <p class="term-tag">Control</p>
+            <h2 class="term-name">Textarea</h2>
+            <p class="term-desc">Multi-line text entry for open-ended input. Set a sensible initial height (rows attribute) and allow vertical resize. Fix the width to prevent layout-breaking resizes from users dragging the handle.</p>
+          </div>
+        </li>
+
+        <li class="term-row">
+          <div class="term-demo">
+            <select class="select" aria-label="Select example">
+              <option value="">Choose a typeface</option>
+              <option>Playfair Display</option>
+              <option>Inter</option>
+              <option>JetBrains Mono</option>
+            </select>
+          </div>
+          <div class="term-info">
+            <p class="term-tag">Control</p>
+            <h2 class="term-name">Select / Dropdown</h2>
+            <p class="term-desc">Native select for 5–15 mutually exclusive options. Accessible by default   a significant advantage over custom replacements. For searchable or fully styled dropdowns, build a custom combobox with proper ARIA roles.</p>
+          </div>
+        </li>
+
+        <li class="term-row">
+          <div class="term-demo">
+            <div class="radio-group" role="radiogroup" aria-label="Typeface selection">
+              <label class="radio-lbl">
+                <input class="radio-input" type="radio" name="font-demo" value="serif"> Serif
+              </label>
+              <label class="radio-lbl">
+                <input class="radio-input" type="radio" name="font-demo" value="sans" checked> Sans-serif
+              </label>
+              <label class="radio-lbl">
+                <input class="radio-input" type="radio" name="font-demo" value="mono"> Monospace
+              </label>
+            </div>
+          </div>
+          <div class="term-info">
+            <p class="term-tag">Control</p>
+            <h2 class="term-name">Radio Buttons</h2>
+            <p class="term-desc">Mutually exclusive selection from a visible set (2–7 options). All choices are visible simultaneously   better than a select for comparison. Group with fieldset/legend. Use when users need to see all options before deciding.</p>
+          </div>
+        </li>
+
+        <li class="term-row">
+          <div class="term-demo">
+            <div class="check-group" role="group" aria-label="Features">
+              <label class="check-lbl">
+                <input class="check-input" type="checkbox" checked> Dark mode support
+              </label>
+              <label class="check-lbl">
+                <input class="check-input" type="checkbox"> Reduced motion
+              </label>
+              <label class="check-lbl">
+                <input class="check-input" type="checkbox" checked> Keyboard navigation
+              </label>
+            </div>
+          </div>
+          <div class="term-info">
+            <p class="term-tag">Control</p>
+            <h2 class="term-name">Checkbox</h2>
+            <p class="term-desc">Independent binary selections   any number can be checked simultaneously. Use for multi-select filters, feature flags, and consent forms. Never substitute checkbox logic for radio buttons or vice versa.</p>
+          </div>
+        </li>
+
+        <li class="term-row">
+          <div class="term-demo">
+            <div style="display:flex;flex-direction:column;gap:1rem">
+              <div class="toggle-wrap">
+                <div class="toggle-track" role="switch" aria-checked="false" tabindex="0" aria-label="Notifications">
+                  <div class="toggle-thumb"></div>
+                </div>
+                <span>Notifications</span>
+              </div>
+              <div class="toggle-wrap">
+                <div class="toggle-track on" role="switch" aria-checked="true" tabindex="0" aria-label="Auto-save">
+                  <div class="toggle-thumb"></div>
+                </div>
+                <span>Auto-save</span>
+              </div>
+            </div>
+          </div>
+          <div class="term-info">
+            <p class="term-tag">Control</p>
+            <h2 class="term-name">Toggle / Switch</h2>
+            <p class="term-desc">Instant binary state change   the effect applies immediately without a Save button. Use role="switch" and aria-checked for screen readers. Best for settings panels where changes take effect in real time.</p>
+          </div>
+        </li>
+
+        <li class="term-row">
+          <div class="term-demo">
+            <div style="display:flex;flex-direction:column;gap:0.5rem;width:100%;max-width:280px">
+              <input class="slider" type="range" min="0" max="100" value="60" aria-label="Opacity">
+              <div style="display:flex;justify-content:space-between">
+                <span style="font-size:0.5625rem;letter-spacing:0.15em;color:var(--muted-fg);text-transform:uppercase">0%</span>
+                <span style="font-size:0.5625rem;letter-spacing:0.15em;color:var(--muted-fg);text-transform:uppercase">Opacity</span>
+                <span style="font-size:0.5625rem;letter-spacing:0.15em;color:var(--muted-fg);text-transform:uppercase">100%</span>
+              </div>
+            </div>
+          </div>
+          <div class="term-info">
+            <p class="term-tag">Control</p>
+            <h2 class="term-name">Slider</h2>
+            <p class="term-desc">Continuous value selection within a defined range. Ideal when relative position matters more than precision (volume, opacity, blur). Always pair with a live numeric readout so users can see the exact value as they drag.</p>
+          </div>
+        </li>
+
+        <li class="term-row">
+          <div class="term-demo">
+            <div class="states-stack">
+              <div>
+                <div class="state-lbl">Default</div>
+                <input class="input" type="text" placeholder="Email address" aria-label="Default state">
+              </div>
+              <div>
+                <div class="state-lbl">Focus</div>
+                <input class="input is-focus" type="text" value="paige@studio.co" aria-label="Focus state">
+              </div>
+              <div>
+                <div class="state-lbl">Error</div>
+                <input class="input is-error" type="email" value="not-valid" aria-label="Error state" aria-describedby="err-hint">
+                <p class="error-hint" id="err-hint">Please enter a valid email address.</p>
+              </div>
+              <div>
+                <div class="state-lbl">Disabled</div>
+                <input class="input" type="text" value="read-only value" disabled aria-label="Disabled state">
+              </div>
+            </div>
+          </div>
+          <div class="term-info">
+            <p class="term-tag">States</p>
+            <h2 class="term-name">Input States</h2>
+            <p class="term-desc">Every input must communicate four states clearly: default (resting), focus (active, distinct border), error (invalid   with an explanatory message, not just color), and disabled (unavailable, muted). Color alone is never sufficient   always add a secondary signal.</p>
+          </div>
+        </li>
+
+      </ul>
+
+      <!-- INPUTS SHOWCASE -->
+      <div class="showcase">
+        <div class="showcase-header"><span class="showcase-eyebrow">Visual Reference</span></div>
+
+        <div class="showcase-section">
+          <p class="showcase-section-title" id="inputs-styles">Input Style Variants</p>
+          <div class="sc-grid sc-wide">
+            <div class="sc-item">
+              <div class="sc-demo sc-demo-left" style="flex-direction:column;align-items:flex-start;justify-content:center">
+                <input class="input" type="text" placeholder="Your name" aria-label="Underline input" style="max-width:100%">
+              </div>
+              <p class="sc-label">Underline only</p>
+              <p class="sc-desc">Bottom border only. Minimal, editorial. Merges with the page — the label and text carry all the weight. Best on light, clean backgrounds.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo sc-demo-left" style="flex-direction:column;align-items:flex-start;justify-content:center">
+                <input class="input-outlined-style" type="text" placeholder="Your name" aria-label="Outlined input" style="max-width:100%">
+              </div>
+              <p class="sc-label">Outlined (box)</p>
+              <p class="sc-desc">Full border on all sides. The field is clearly a container. Works on any background color and is the most universally recognized input pattern.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo sc-demo-left" style="flex-direction:column;align-items:flex-start;justify-content:center">
+                <input class="input-filled-style" type="text" placeholder="Your name" aria-label="Filled input" style="max-width:100%">
+              </div>
+              <p class="sc-label">Filled (tinted bg)</p>
+              <p class="sc-desc">Tinted background with only a bottom border. No border box. Common in Material Design. High affordance — the fill clearly signals an interactive zone even before focus.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="showcase-section">
+          <p class="showcase-section-title" id="inputs-affixes">Affixes — Icon &amp; Button Attachments</p>
+          <div class="sc-grid sc-wide">
+            <div class="sc-item">
+              <div class="sc-demo sc-demo-left" style="flex-direction:column;align-items:flex-start;justify-content:center">
+                <div class="input-affix-wrap" style="max-width:100%">
+                  <span class="affix-icon">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                  </span>
+                  <input class="input-affix" type="text" placeholder="Search anything" aria-label="Search input">
+                </div>
+              </div>
+              <p class="sc-label">Leading icon</p>
+              <p class="sc-desc">Icon precedes the field. Reinforces the input's purpose before the user reads the placeholder. Search, location, and email icons are most common.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo sc-demo-left" style="flex-direction:column;align-items:flex-start;justify-content:center">
+                <div class="input-affix-wrap" style="max-width:100%">
+                  <input class="input-affix" type="email" placeholder="Email address" aria-label="Email input">
+                  <span class="affix-icon">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.82a19.79 19.79 0 01-3.07-8.63A2 2 0 012 .18h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9a16 16 0 006.91 6.91l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>
+                  </span>
+                </div>
+              </div>
+              <p class="sc-label">Trailing icon</p>
+              <p class="sc-desc">Icon follows the field. Used for action indicators (clear X, toggle visibility, copy to clipboard). Should be actionable, not purely decorative.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo sc-demo-left" style="flex-direction:column;align-items:flex-start;justify-content:center">
+                <div class="input-affix-wrap" style="max-width:100%">
+                  <input class="input-affix" type="text" placeholder="your-handle" aria-label="URL input">
+                  <button class="affix-btn">Copy</button>
+                </div>
+              </div>
+              <p class="sc-label">Trailing button</p>
+              <p class="sc-desc">A button fused to the right edge of the field. Use for search submit, URL copy, coupon apply, or subscribe. The single-field form pattern.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="showcase-section">
+          <p class="showcase-section-title" id="inputs-float">Floating Label</p>
+          <div class="sc-grid sc-wide">
+            <div class="sc-item">
+              <div class="sc-demo sc-demo-left" style="flex-direction:column;align-items:flex-start;justify-content:center">
+                <div class="float-label-wrap" style="max-width:100%;width:100%">
+                  <input class="float-label-input" type="text" placeholder=" " aria-label="Float label resting" id="fl1">
+                  <label class="float-label" for="fl1">First name</label>
+                </div>
+              </div>
+              <p class="sc-label">Resting state</p>
+              <p class="sc-desc">Label sits inside the field as a placeholder. On focus or when filled, it animates up and shrinks to a small label above. Click the field to see it.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo sc-demo-left" style="flex-direction:column;align-items:flex-start;justify-content:center">
+                <div class="float-label-wrap" style="max-width:100%;width:100%;border-bottom-color:var(--accent)">
+                  <input class="float-label-input" type="text" placeholder=" " value="Paige" aria-label="Float label filled" id="fl2">
+                  <label class="float-label" for="fl2" style="top:0;font-size:0.5625rem;letter-spacing:0.18em;text-transform:uppercase;font-family:var(--sans);font-style:normal;color:var(--accent)">First name</label>
+                </div>
+              </div>
+              <p class="sc-label">Filled / active state</p>
+              <p class="sc-desc">Label floats above the field, styled as a small uppercase label in accent color. The field and its label now occupy the same vertical space.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="showcase-section">
+          <p class="showcase-section-title" id="inputs-size">Size Variants</p>
+          <div class="sc-grid sc-wide">
+            <div class="sc-item">
+              <div class="sc-demo sc-demo-left" style="flex-direction:column;align-items:flex-start;justify-content:center">
+                <input class="input-compact" type="text" placeholder="Compact" aria-label="Compact input" style="max-width:100%">
+              </div>
+              <p class="sc-label">Compact — 13px</p>
+              <p class="sc-desc">Small type, minimal padding. Dense forms, inline editable tables, and settings panels.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo sc-demo-left" style="flex-direction:column;align-items:flex-start;justify-content:center">
+                <input class="input" type="text" placeholder="Standard" aria-label="Standard input" style="max-width:100%">
+              </div>
+              <p class="sc-label">Standard — 15px</p>
+              <p class="sc-desc">The default. Works on every device and use case. The safe choice for any form that isn't trying to be compact or bold.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo sc-demo-left" style="flex-direction:column;align-items:flex-start;justify-content:center">
+                <input class="input-large" type="text" placeholder="Large" aria-label="Large input" style="max-width:100%">
+              </div>
+              <p class="sc-label">Large — 18px</p>
+              <p class="sc-desc">Hero sign-up fields, waitlist inputs, and prominent search bars. The large size signals that this field is the primary action on the page.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="showcase-section">
+          <p class="showcase-section-title" id="inputs-helper">Helper Text &amp; Character Count</p>
+          <div class="sc-grid sc-wide">
+            <div class="sc-item">
+              <div class="sc-demo sc-demo-left" style="flex-direction:column;align-items:flex-start;justify-content:center;gap:0">
+                <div class="input-hint-wrap" style="width:100%">
+                  <input class="input" type="password" placeholder="Password" aria-label="Password with hint" aria-describedby="pw-hint" style="max-width:100%">
+                  <p class="input-hint" id="pw-hint">Minimum 8 characters. Include a number and a symbol.</p>
+                </div>
+              </div>
+              <p class="sc-label">Helper text below</p>
+              <p class="sc-desc">Guidance appears below the field before and during input. Reduces errors proactively. Never replace this with placeholder text.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo sc-demo-left" style="flex-direction:column;align-items:flex-start;justify-content:center;gap:0">
+                <div class="input-hint-wrap" style="width:100%">
+                  <input class="input is-error" type="email" value="notvalid" aria-label="Error state" aria-describedby="email-err" style="max-width:100%">
+                  <p class="error-hint" id="email-err">This doesn't look like a valid email address.</p>
+                </div>
+              </div>
+              <p class="sc-label">Inline error message</p>
+              <p class="sc-desc">Error message replaces or appears below helper text. Must describe what's wrong and how to fix it. Color alone is not enough.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo sc-demo-left" style="flex-direction:column;align-items:flex-start;justify-content:center;gap:0">
+                <div class="char-count-wrap" style="width:100%">
+                  <input class="char-count-input" type="text" maxlength="80" placeholder="Bio" id="charInput" aria-label="Character count input">
+                  <span class="char-count" id="charCount">0 / 80</span>
+                </div>
+              </div>
+              <p class="sc-label">Character counter</p>
+              <p class="sc-desc">Live count of characters entered against a max. Appears when the limit is meaningful to the user. Turns red near the limit.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="showcase-section">
+          <p class="showcase-section-title" id="inputs-grouped">Grouped Inputs</p>
+          <div class="sc-grid sc-wide">
+            <div class="sc-item">
+              <div class="sc-demo sc-demo-left" style="flex-direction:column;align-items:flex-start;justify-content:center">
+                <div class="inline-group" style="width:100%">
+                  <input class="input" type="text" placeholder="First" aria-label="First name" style="max-width:none;flex:1">
+                  <input class="input" type="text" placeholder="Last" aria-label="Last name" style="max-width:none;flex:1">
+                </div>
+              </div>
+              <p class="sc-label">Horizontal group</p>
+              <p class="sc-desc">Two fields side by side with a shared baseline. Groups related inputs that belong together conceptually: first + last name, city + zip, day + month + year.</p>
+            </div>
+            <div class="sc-item">
+              <div class="sc-demo sc-demo-left" style="flex-direction:column;align-items:flex-start;justify-content:center;gap:1.25rem">
+                <input class="input" type="text" placeholder="Street address" aria-label="Street" style="max-width:100%">
+                <input class="input" type="text" placeholder="City" aria-label="City" style="max-width:100%">
+                <input class="input" type="text" placeholder="Postcode" aria-label="Postcode" style="max-width:100%">
+              </div>
+              <p class="sc-label">Vertical stack</p>
+              <p class="sc-desc">Stacked fields with consistent gap. The default form layout. Each field gets full width and equal visual treatment. Clear reading order from top to bottom.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    // ─── Tab + Dropdown navigation ────────────────────────────
+    const tabs   = document.querySelectorAll('.tab-btn');
+    const panels = document.querySelectorAll('.tab-panel');
+    const dds    = document.querySelectorAll('.tab-dd');
+
+    function activateTab(tabName) {
+      tabs.forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
+      panels.forEach(p => p.classList.remove('active'));
+      const btn = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
+      if (btn) { btn.classList.add('active'); btn.setAttribute('aria-selected','true'); }
+      const panel = document.getElementById('panel-' + tabName);
+      if (panel) panel.classList.add('active');
+    }
+
+    function closeAllDropdowns() {
+      dds.forEach(d => d.classList.remove('open'));
+    }
+
+    // Tab button click — toggle dropdown (mobile); on desktop hover handles it via CSS
+    tabs.forEach(tab => {
+      tab.addEventListener('click', e => {
+        const dd = tab.closest('.tab-dd');
+        const wasOpen = dd.classList.contains('open');
+        closeAllDropdowns();
+        if (!wasOpen) dd.classList.add('open');
+      });
+    });
+
+    // Dropdown item click — switch tab and scroll to section
+    document.querySelectorAll('.tab-dd-item').forEach(item => {
+      item.addEventListener('click', e => {
+        e.preventDefault();
+        const tabName  = item.dataset.tab;
+        const targetId = item.dataset.target;
+        closeAllDropdowns();
+        activateTab(tabName);
+        const el = document.getElementById(targetId);
+        if (el) {
+          setTimeout(() => {
+            const navH = document.querySelector('.tab-nav').offsetHeight;
+            const y = el.getBoundingClientRect().top + window.scrollY - navH - 24;
+            window.scrollTo({ top: y, behavior: 'smooth' });
+          }, 60);
+        }
+      });
+    });
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', e => {
+      if (!e.target.closest('.tab-dd')) closeAllDropdowns();
+    });
+
+    // Escape key closes dropdowns
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeAllDropdowns();
+    });
+
+    // ─── Deep-link via ?tab=X ────────────────────────────────
+    const urlTab = new URLSearchParams(window.location.search).get('tab');
+    if (urlTab) activateTab(urlTab);
+
+    // Mobile tab scroll nudge — hints that more tabs exist to the right
+    if (window.innerWidth <= 720) {
+      const tabScroll = document.querySelector('.tab-nav-scroll');
+      if (tabScroll) {
+        setTimeout(() => {
+          tabScroll.scrollTo({ left: 72, behavior: 'smooth' });
+          setTimeout(() => tabScroll.scrollTo({ left: 0, behavior: 'smooth' }), 500);
+        }, 1200);
+      }
+    }
+
+    // Arrow key navigation on tablist
+    document.querySelector('.tab-nav-scroll').addEventListener('keydown', e => {
+      const list = [...tabs];
+      const i = list.indexOf(document.activeElement);
+      if (e.key === 'ArrowRight') list[(i + 1) % list.length].focus();
+      if (e.key === 'ArrowLeft')  list[(i - 1 + list.length) % list.length].focus();
+    });
+
+    // ─── Character counter ───────────────────────────────────
+    const charInput = document.getElementById('charInput');
+    const charCount = document.getElementById('charCount');
+    if (charInput && charCount) {
+      charInput.addEventListener('input', () => {
+        const n = charInput.value.length;
+        const max = charInput.maxLength;
+        charCount.textContent = n + ' / ' + max;
+        charCount.style.color = n > max * 0.85 ? 'var(--danger)' : 'var(--muted-fg)';
+      });
+    }
+
+    // ─── Toggle switches ──────────────────────────────────────
+    document.querySelectorAll('.toggle-track').forEach(track => {
+      const flip = () => {
+        const on = track.classList.toggle('on');
+        track.setAttribute('aria-checked', String(on));
+      };
+      track.addEventListener('click', flip);
+      track.addEventListener('keydown', e => {
+        if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); flip(); }
+      });
+    });
+  </script>
+</body>
+</html>
