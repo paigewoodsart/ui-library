@@ -1496,6 +1496,10 @@
     .play-ghost:hover { color: var(--fg); border-color: var(--fg); }
 
     /* ─── Play Toolbar ───────────────────────────────────────── */
+    @keyframes tbLabelUp {
+      from { opacity: 0; transform: translateY(7px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
     .play-toolbar {
       position: fixed;
       bottom: 0; left: 0; right: 0;
@@ -1503,7 +1507,7 @@
       background: var(--fg);
       border-top: 1px solid rgba(255,255,255,0.07);
       transform: translateY(100%);
-      transition: transform 220ms ease;
+      transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
       pointer-events: none;
     }
     .play-toolbar.visible {
@@ -1513,7 +1517,7 @@
     .play-toolbar-bar {
       display: flex;
       align-items: center;
-      height: 48px;
+      height: 58px;
       max-width: 1400px;
       margin: 0 auto;
       padding: 0 2rem;
@@ -1521,13 +1525,13 @@
     }
     .play-tb-lbl {
       font-family: var(--sans);
-      font-size: 0.4875rem;
+      font-size: 0.875rem;
       font-weight: 500;
-      letter-spacing: 0.2em;
+      letter-spacing: 0.06em;
       text-transform: uppercase;
       color: rgba(249,248,246,0.45);
-      padding: 0 1.125rem;
-      height: 48px;
+      padding: 0 1.375rem;
+      height: 58px;
       display: inline-flex;
       align-items: center;
       cursor: pointer;
@@ -1536,10 +1540,19 @@
       white-space: nowrap;
       user-select: none;
       flex-shrink: 0;
+      opacity: 0;
     }
+    /* Staggered fade-up each time toolbar slides in */
+    .play-toolbar.visible .play-toolbar-bar > *:nth-child(1) { animation: tbLabelUp 0.38s cubic-bezier(0.22,1,0.36,1) 0.10s forwards; }
+    .play-toolbar.visible .play-toolbar-bar > *:nth-child(2) { animation: tbLabelUp 0.38s cubic-bezier(0.22,1,0.36,1) 0.16s forwards; }
+    .play-toolbar.visible .play-toolbar-bar > *:nth-child(3) { animation: tbLabelUp 0.38s cubic-bezier(0.22,1,0.36,1) 0.22s forwards; }
+    .play-toolbar.visible .play-toolbar-bar > *:nth-child(4) { animation: tbLabelUp 0.38s cubic-bezier(0.22,1,0.36,1) 0.28s forwards; }
+    .play-toolbar.visible .play-toolbar-bar > *:nth-child(5) { animation: tbLabelUp 0.38s cubic-bezier(0.22,1,0.36,1) 0.34s forwards; }
+    .play-toolbar.visible .play-toolbar-bar > *:nth-child(6) { animation: tbLabelUp 0.38s cubic-bezier(0.22,1,0.36,1) 0.38s forwards; }
+    .play-toolbar.visible .play-toolbar-bar > *:nth-child(7) { animation: tbLabelUp 0.38s cubic-bezier(0.22,1,0.36,1) 0.42s forwards; }
     .play-tb-lbl:hover { color: rgba(249,248,246,0.8); }
     .play-tb-lbl.active { color: var(--accent); border-bottom-color: var(--accent); }
-    .play-tb-sep { margin-left: auto; }
+    .play-tb-sep { margin-left: auto; opacity: 0; }
     .play-tb-reset { color: rgba(249,248,246,0.3); cursor: pointer; }
     .play-tb-reset:hover { color: rgba(249,248,246,0.65); }
     .play-tb-export { color: rgba(249,248,246,0.2); cursor: not-allowed; }
@@ -1617,7 +1630,7 @@
     }
     .play-prop-btn {
       font-family: var(--sans);
-      font-size: 0.4375rem;
+      font-size: 0.9375rem;
       font-weight: 500;
       letter-spacing: 0.14em;
       text-transform: uppercase;
@@ -1633,7 +1646,7 @@
     .play-prop-btn.active { color: var(--accent); border-color: var(--accent); background: rgba(122,143,163,0.12); }
     .play-palette-type-btn {
       font-family: var(--sans);
-      font-size: 0.4375rem;
+      font-size: 0.9375rem;
       font-weight: 500;
       letter-spacing: 0.14em;
       text-transform: uppercase;
@@ -1676,21 +1689,21 @@
     }
     .play-color-name {
       font-family: var(--sans);
-      font-size: 0.4375rem;
+      font-size: 0.5625rem;
       letter-spacing: 0.08em;
-      color: rgba(249,248,246,0.78);
+      color: rgba(249,248,246,0.95);
       white-space: nowrap;
     }
     .play-color-hex {
       font-family: var(--mono);
-      font-size: 0.375rem;
-      color: rgba(249,248,246,0.3);
+      font-size: 0.5rem;
+      color: rgba(249,248,246,0.55);
       letter-spacing: 0.04em;
     }
     /* Option buttons (Typography / Buttons / Spacing panels) */
     .play-opt-btn {
       font-family: var(--sans);
-      font-size: 0.4375rem;
+      font-size: 0.9375rem;
       letter-spacing: 0.06em;
       color: rgba(249,248,246,0.52);
       background: rgba(255,255,255,0.04);
@@ -1703,17 +1716,93 @@
     .play-opt-btn:hover { color: rgba(249,248,246,0.85); border-color: rgba(255,255,255,0.2); }
     .play-opt-btn.active { color: var(--accent); border-color: var(--accent); background: rgba(122,143,163,0.09); }
 
+    /* Curated palette preset chips */
+    .play-palette-chip {
+      display: inline-flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      cursor: pointer;
+      padding: 0.375rem 0.45rem;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .play-palette-chip:hover { border-color: rgba(255,255,255,0.24); }
+    .play-palette-chip.active { border-color: var(--accent); }
+    .play-palette-strip { display: flex; width: 76px; height: 10px; }
+    .play-palette-strip > span { flex: 1; }
+    .play-palette-chip-name {
+      font-family: var(--sans);
+      font-size: 0.5rem;
+      letter-spacing: 0.04em;
+      color: rgba(249,248,246,0.65);
+      white-space: nowrap;
+      max-width: 76px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
     .play-panel.open { max-height: 210px; }
     .play-panel.open.color-open { max-height: 210px; }
 
+    /* Close button — mobile only */
+    .play-close-btn { display: none; }
+
     @media (max-width: 720px) {
+      /* Play = full-screen modal that swoops up from bottom */
+      #play {
+        position: fixed;
+        inset: 0;
+        z-index: 490;
+        display: flex !important;   /* always in DOM, hidden via transform */
+        transform: translateY(105%);
+        transition: transform 400ms cubic-bezier(0.22, 1, 0.36, 1);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 4.5rem 1.25rem 220px;
+        background: var(--bg);
+        align-items: flex-start;
+        justify-content: flex-start;
+      }
+      #play.active { transform: translateY(0); }
+
+      /* Toolbar sits above modal on mobile */
+      .play-toolbar { z-index: 492; }
+
+      /* X close button */
+      .play-close-btn {
+        display: flex;
+        position: fixed;
+        top: 1.125rem;
+        right: 1.25rem;
+        z-index: 495;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: var(--fg);
+        color: var(--bg);
+        border: none;
+        cursor: pointer;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        line-height: 1;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 200ms ease, transform 200ms ease;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.22);
+      }
+      .play-close-btn.visible {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .play-close-btn:active { transform: scale(0.92); }
+
       .play-panel-inner { gap: 1rem; padding: 0.75rem 1.25rem; }
       .play-panel.open { max-height: 200px; overflow-y: auto; }
       .play-panel.open.color-open { max-height: 320px; overflow-y: auto; }
-      .play-sel { min-width: 100px; }
       .play-color-panel { padding: 0.75rem 1.25rem; }
       .play-color-grid { max-height: 80px; }
-      #play { padding: 2rem 1.25rem 16rem; }
+      .play-preview { padding: 2rem 1.25rem; }
     }
 
   </style>
@@ -4236,6 +4325,9 @@
 
   </main>
 
+  <!-- Mobile close button for Play modal -->
+  <button class="play-close-btn" id="playCloseBtn" aria-label="Close Play" aria-hidden="true">&#x2715;</button>
+
   <!-- ════════════════════════ PLAY TOOLBAR ════════════════════════ -->
   <div class="play-toolbar" id="playToolbar" aria-label="Design controls" aria-hidden="true">
 
@@ -4262,6 +4354,9 @@
     const dds    = document.querySelectorAll('.tab-dd');
 
     function activateTab(tabName) {
+      // Allow play section (loaded later) to clean itself up first
+      if (typeof window.__playCleanup === 'function') window.__playCleanup();
+
       tabs.forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
       panels.forEach(p => p.classList.remove('active'));
       const btn = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
@@ -4748,6 +4843,30 @@
         btnFill:'--play-btn-fill',
       };
 
+      // ── Curated palette presets ────────────────────────────────
+      const CURATED_PALETTES = [
+        { name:'Midnight Navy',       strip:['#0A1628','#1E3A6E','#2563B0','#B8C8DC','#EEF2F8'], bg:'#EEF2F8', head:'#0A1628', body:'#1E3A6E', accent:'#2563B0', btnFill:'#0A1628' },
+        { name:'Obsidian & Gold',     strip:['#1A1A1A','#2C2C2C','#D4AF37','#E8D88A','#F9F8F6'], bg:'#F9F8F6', head:'#1A1A1A', body:'#2C2C2C', accent:'#D4AF37', btnFill:'#1A1A1A' },
+        { name:'Forest & Sage',       strip:['#2D3A2E','#4A6B4D','#7DB88A','#C8E0CD','#F0F5F1'], bg:'#F0F5F1', head:'#2D3A2E', body:'#4A6B4D', accent:'#7DB88A', btnFill:'#2D3A2E' },
+        { name:'Warm Terracotta',     strip:['#6B2A10','#C17A3A','#D4956A','#F5E6D8','#FBF5EE'], bg:'#FBF5EE', head:'#6B2A10', body:'#C17A3A', accent:'#D4956A', btnFill:'#C17A3A' },
+        { name:'Blush & Rose',        strip:['#2A1A1A','#7A4A48','#B07870','#D4A8A0','#FAF0EE'], bg:'#FAF0EE', head:'#2A1A1A', body:'#7A4A48', accent:'#B07870', btnFill:'#7A4A48' },
+        { name:'Neon on Dark',        strip:['#0A0A1A','#1A1A2E','#00C8FF','#00F5A0','#0D0D0D'], bg:'#0A0A1A', head:'#00F5A0', body:'#C0F0FF', accent:'#00C8FF', btnFill:'#00F5A0' },
+        { name:'Arctic Ice',          strip:['#1A4A5E','#3A8AAA','#7ABCD4','#B8DCE8','#E8F4F8'], bg:'#E8F4F8', head:'#1A4A5E', body:'#3A8AAA', accent:'#3A8AAA', btnFill:'#1A4A5E' },
+        { name:'Deep Violet',         strip:['#3D1A6E','#6B3FA0','#9B70C8','#D4B8E8','#F5EFF8'], bg:'#F5EFF8', head:'#3D1A6E', body:'#6B3FA0', accent:'#9B70C8', btnFill:'#3D1A6E' },
+        { name:'Classic Red',         strip:['#1A1A1A','#C04C3C','#E06050','#F0F0F0','#FFFFFF'], bg:'#FFFFFF', head:'#1A1A1A', body:'#4A4A4A', accent:'#C04C3C', btnFill:'#C04C3C' },
+        { name:'Desert Linen',        strip:['#3A2818','#786050','#A89070','#F5EDE0','#FDFAF5'], bg:'#FDFAF5', head:'#3A2818', body:'#786050', accent:'#A89070', btnFill:'#786050' },
+        { name:'Teal & Coral',        strip:['#004D4D','#007A7A','#E8734A','#F5B89A','#FFF5F0'], bg:'#FFF5F0', head:'#004D4D', body:'#007A7A', accent:'#E8734A', btnFill:'#004D4D' },
+        { name:'Charcoal & Lime',     strip:['#1A2A1A','#2A3A2A','#8BC34A','#C5E09A','#F0F5E8'], bg:'#F0F5E8', head:'#1A2A1A', body:'#2A3A2A', accent:'#8BC34A', btnFill:'#1A2A1A' },
+        { name:'Soft Lavender',       strip:['#3A2A50','#7870A0','#A090B8','#C4B8D0','#FAF8FD'], bg:'#FAF8FD', head:'#3A2A50', body:'#7870A0', accent:'#A090B8', btnFill:'#7870A0' },
+        { name:'Teal & Bronze',       strip:['#1A3A4A','#2A6A7A','#A07040','#D4A870','#F5EDD8'], bg:'#F5EDD8', head:'#1A3A4A', body:'#2A6A7A', accent:'#A07040', btnFill:'#1A3A4A' },
+        { name:'Hot Pink & Black',    strip:['#1A1A1A','#2E2E2E','#E80080','#FF40A0','#F5F5F5'], bg:'#F5F5F5', head:'#1A1A1A', body:'#2E2E2E', accent:'#E80080', btnFill:'#E80080' },
+        { name:'Warm Monochrome',     strip:['#3A2A18','#7A6A50','#A09070','#C8B890','#F8F5EE'], bg:'#F8F5EE', head:'#3A2A18', body:'#7A6A50', accent:'#A09070', btnFill:'#7A6A50' },
+        { name:'Sky & Sunshine',      strip:['#1A3A5A','#4A7A9B','#F5C842','#FDE98A','#E8F4FC'], bg:'#E8F4FC', head:'#1A3A5A', body:'#4A7A9B', accent:'#F5C842', btnFill:'#4A7A9B' },
+        { name:'Tobacco & Parchment', strip:['#5A3A2A','#8B6B50','#B89878','#D4C0A8','#F5EDE0'], bg:'#F5EDE0', head:'#5A3A2A', body:'#8B6B50', accent:'#B89878', btnFill:'#5A3A2A' },
+        { name:'Electric Cobalt',     strip:['#0F0F1A','#1A1A3A','#4040C0','#8080FF','#C0C0FF'], bg:'#0F0F1A', head:'#C0C0FF', body:'#8080FF', accent:'#4040C0', btnFill:'#4040C0' },
+        { name:'Midnight Plum',       strip:['#0D0D0D','#1C1C2E','#4A3F6B','#9B59B6','#E8D5F5'], bg:'#1C1C2E', head:'#E8D5F5', body:'#9B59B6', accent:'#4A3F6B', btnFill:'#9B59B6' },
+      ];
+
       function renderColorPanel() {
         let activeProp = 'bg';
         let activePaletteType = 'hue';
@@ -4755,7 +4874,7 @@
         const container = document.createElement('div');
         container.className = 'play-color-panel';
 
-        // Property selector row
+        // Row 1: Property selector (Apply to + Presets)
         const propsRow = document.createElement('div');
         propsRow.className = 'play-color-row';
         const propsLbl = document.createElement('span');
@@ -4763,6 +4882,7 @@
         propsLbl.textContent = 'Apply to';
         propsRow.appendChild(propsLbl);
         const propBtns = {};
+
         COLOR_PROP_KEYS.forEach((key, i) => {
           const btn = document.createElement('button');
           btn.className = 'play-prop-btn' + (key === activeProp ? ' active' : '');
@@ -4771,14 +4891,29 @@
             activeProp = key;
             Object.values(propBtns).forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
+            typeRow.style.display = '';
             refreshGrid();
           });
           propBtns[key] = btn;
           propsRow.appendChild(btn);
         });
+
+        // Presets button — applies full curated palette at once
+        const presetsBtn = document.createElement('button');
+        presetsBtn.className = 'play-prop-btn';
+        presetsBtn.textContent = 'Presets';
+        presetsBtn.addEventListener('click', () => {
+          activeProp = '__palette__';
+          Object.values(propBtns).forEach(b => b.classList.remove('active'));
+          presetsBtn.classList.add('active');
+          typeRow.style.display = 'none';
+          refreshGrid();
+        });
+        propBtns['__palette__'] = presetsBtn;
+        propsRow.appendChild(presetsBtn);
         container.appendChild(propsRow);
 
-        // Palette type row
+        // Row 2: Palette type (Base Hue / Tints / Shades / Tones)
         const typeRow = document.createElement('div');
         typeRow.className = 'play-color-row';
         const typeLbl = document.createElement('span');
@@ -4807,47 +4942,87 @@
         });
         container.appendChild(typeRow);
 
-        // Color grid
+        // Grid (single colors or palette chips)
         const grid = document.createElement('div');
         grid.className = 'play-color-grid';
         container.appendChild(grid);
 
+        function applyPalette(p) {
+          setVar('--play-bg',           p.bg);
+          setVar('--play-head-color',   p.head);
+          setVar('--play-body-color',   p.body);
+          setVar('--play-accent-color', p.accent);
+          setVar('--play-btn-fill',     p.btnFill);
+          state.bg = p.bg; state.headColor = p.head;
+          state.bodyColor = p.body; state.accentColor = p.accent; state.btnFill = p.btnFill;
+          const h = p.btnFill.replace('#','');
+          const r=parseInt(h.slice(0,2),16), g=parseInt(h.slice(2,4),16), b=parseInt(h.slice(4,6),16);
+          setVar('--play-btn-text', (0.299*r+0.587*g+0.114*b) > 140 ? '#1A1A1A' : '#F9F8F6');
+        }
+
         function refreshGrid() {
           grid.innerHTML = '';
-          PALETTES[activePaletteType].forEach(c => {
-            const btn = document.createElement('button');
-            btn.className = 'play-color-btn' + (state[activeProp] === c.hex ? ' active' : '');
 
-            const swatch = document.createElement('span');
-            swatch.className = 'play-color-swatch';
-            swatch.style.background = c.hex;
+          if (activeProp === '__palette__') {
+            // Curated palette chips
+            CURATED_PALETTES.forEach(p => {
+              const chip = document.createElement('button');
+              chip.className = 'play-palette-chip';
 
-            const name = document.createElement('span');
-            name.className = 'play-color-name';
-            name.textContent = c.name;
+              const strip = document.createElement('div');
+              strip.className = 'play-palette-strip';
+              p.strip.forEach(hex => {
+                const s = document.createElement('span');
+                s.style.background = hex;
+                strip.appendChild(s);
+              });
 
-            const hexSpan = document.createElement('span');
-            hexSpan.className = 'play-color-hex';
-            hexSpan.textContent = c.hex;
+              const lbl = document.createElement('span');
+              lbl.className = 'play-palette-chip-name';
+              lbl.textContent = p.name;
 
-            btn.append(swatch, name, hexSpan);
-
-            btn.addEventListener('click', () => {
-              grid.querySelectorAll('.play-color-btn').forEach(b => b.classList.remove('active'));
-              btn.classList.add('active');
-              state[activeProp] = c.hex;
-              setVar(COLOR_CSS_MAP[activeProp], c.hex);
-              if (activeProp === 'btnFill') {
-                const r = parseInt(c.hex.slice(1,3),16);
-                const g = parseInt(c.hex.slice(3,5),16);
-                const b = parseInt(c.hex.slice(5,7),16);
-                const luma = 0.299*r + 0.587*g + 0.114*b;
-                setVar('--play-btn-text', luma > 140 ? '#1A1A1A' : '#F9F8F6');
-              }
+              chip.append(strip, lbl);
+              chip.addEventListener('click', () => {
+                grid.querySelectorAll('.play-palette-chip').forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+                applyPalette(p);
+              });
+              grid.appendChild(chip);
             });
-            grid.appendChild(btn);
-          });
+          } else {
+            // Individual color buttons
+            PALETTES[activePaletteType].forEach(c => {
+              const btn = document.createElement('button');
+              btn.className = 'play-color-btn' + (state[activeProp] === c.hex ? ' active' : '');
+
+              const swatch = document.createElement('span');
+              swatch.className = 'play-color-swatch';
+              swatch.style.background = c.hex;
+
+              const name = document.createElement('span');
+              name.className = 'play-color-name';
+              name.textContent = c.name;
+
+              const hexSpan = document.createElement('span');
+              hexSpan.className = 'play-color-hex';
+              hexSpan.textContent = c.hex;
+
+              btn.append(swatch, name, hexSpan);
+              btn.addEventListener('click', () => {
+                grid.querySelectorAll('.play-color-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                state[activeProp] = c.hex;
+                setVar(COLOR_CSS_MAP[activeProp], c.hex);
+                if (activeProp === 'btnFill') {
+                  const r=parseInt(c.hex.slice(1,3),16), g=parseInt(c.hex.slice(3,5),16), b=parseInt(c.hex.slice(5,7),16);
+                  setVar('--play-btn-text', (0.299*r+0.587*g+0.114*b) > 140 ? '#1A1A1A' : '#F9F8F6');
+                }
+              });
+              grid.appendChild(btn);
+            });
+          }
         }
+
         refreshGrid();
         return container;
       }
@@ -4906,27 +5081,53 @@
 
       io.observe(playSec);
 
-      // ── Play tab click → scroll to #play ──────────────────────
-      if (playTab) {
-        playTab.addEventListener('click', e => {
-          e.stopPropagation();
-          closeAllDropdowns();
-          // deactivate library tabs visually
-          tabs.forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
-          panels.forEach(p => p.classList.remove('active'));
-          playTab.classList.add('active');
-          playTab.setAttribute('aria-selected','true');
-          playSec.classList.add('active');
+      // ── Play tab click ─────────────────────────────────────────
+      const closeBtn = document.getElementById('playCloseBtn');
+
+      function openPlay() {
+        closeAllDropdowns();
+        tabs.forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
+        panels.forEach(p => p.classList.remove('active'));
+        playTab && playTab.classList.add('active');
+        playTab && playTab.setAttribute('aria-selected','true');
+        playSec.classList.add('active');
+        playSec.removeAttribute('aria-hidden');
+        // On mobile: show X button; on desktop: scroll to section
+        if (window.innerWidth <= 720) {
+          if (closeBtn) { closeBtn.classList.add('visible'); closeBtn.removeAttribute('aria-hidden'); }
+        } else {
           setTimeout(() => playSec.scrollIntoView({ behavior: 'smooth', block: 'start' }), 30);
+        }
+      }
+
+      if (playTab) {
+        playTab.addEventListener('click', e => { e.stopPropagation(); openPlay(); });
+      }
+
+      // X button — closes modal, returns to library
+      if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+          activateTab('buttons'); // triggers __playCleanup first
         });
       }
 
-      // When other tabs are activated, hide play section
-      const origActivate = activateTab;
-      window.activateTab = function(tabName) {
+      // Register cleanup — called by activateTab() whenever any tab is switched
+      window.__playCleanup = function() {
         playSec.classList.remove('active');
+        playSec.setAttribute('aria-hidden', 'true');
         playTab && playTab.classList.remove('active');
-        origActivate(tabName);
+
+        // Hide X close button on mobile
+        if (closeBtn) { closeBtn.classList.remove('visible'); closeBtn.setAttribute('aria-hidden', 'true'); }
+
+        // Force-hide toolbar immediately — don't rely on IntersectionObserver
+        // (unreliable on mobile when element switches to display:none)
+        toolbar.classList.remove('visible');
+        toolbar.setAttribute('aria-hidden', 'true');
+        activePanel = null;
+        panel.classList.remove('open', 'color-open');
+        panel.innerHTML = '';
+        tbLabels.forEach(l => l.classList.remove('active'));
       };
 
     })();
